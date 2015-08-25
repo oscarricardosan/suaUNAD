@@ -1,0 +1,29 @@
+ofer02nombre <-> Tematica
+"Unidad 1: Herramientas de gestión de bases de datos"
+
+ofer18peso <-> Calificacion
+"125"
+
+ofer03nombre <-> momento
+"Intermedia"
+
+ofer04nombre: <-> Actividad
+"Diseño de la base de datos y preparación del entorno"
+
+ofer04detalle <-> Descripcion
+"-------"
+
+ofer18curso <-> Id Curso
+"301125"
+ofer18per_aca <-> Grupo 
+"224"
+
+ofer18curso+'A_'+ofer18per_aca
+
+
+---------------------------------------
+ofer18idactividad: "9847"
+ofer18detalle <-> Detalle Curso 
+ofer18fase: "5758"
+ofer18numaula: "1"
+ofer18unidad: "3993"

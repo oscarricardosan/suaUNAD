@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+	<head>
+  		<meta charset="utf-8">
+  		<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+	  	<meta name="apple-mobile-web-app-capable" content="yes">
+  		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+  		<title>SUA UNAD</title>
+  		<link rel="stylesheet" href="css/index.css?7">
+  		<!-- Extra Codiqa features -->
+  		<script src="js/jquery-1.9.1.min.js"></script>
+  		<script type="text/javascript" src="js/underscore-min.js"></script>
+  		<script type="text/javascript" src="js/moment.min.js"></script>
+  		<script type="text/javascript" src="js/readable-range.js"></script>
+  		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="bootstrap-3.3.5-dist/css/bootstrap.min.css">
+		<!-- Latest compiled and minified JavaScript -->
+		<script src="bootstrap-3.3.5-dist/js/bootstrap.min.js"></script>
+		<style>
+			#cuerpoActividades .actividad{
+				margin: 1em 0;
+				padding: 8px 4px;
+				border: 1.5px solid #DDA877;
+			}
+			#cuerpoActividades .actividad .titulo{
+				border-bottom: 1px solid #cccccc;
+				font-weight: bold;
+				text-align:center;
+			}
+			#cuerpoActividades .actividad .tiempoCierre{
+				color: white;
+				margin-top:10px;
+				text-align: center;
+			}
+			#cuerpoActividades .actividad .descripcion{
+				border:1px solid #ccc;
+				margin-bottom:3px;
+				margin-top:3px;
+				padding:5px;
+			}
+			#cuerpoActividades .actividad .tiempoCierre[cierre="1"]{
+				background: #095509;
+			}
+			#cuerpoActividades .actividad .tiempoCierre[cierre="0"]{
+				background: black;
+			}
+			#cuerpoActividades .actividad .tiempoCierre[cierre="2"]{
+				background: orange;
+			}
+			#cuerpoActividades .actividad .tiempoCierre[cierre="3"]{
+				background: #A50000;
+			}
+			#Cortina{
+				background: rgba(255, 255, 255, 0.58);
+				left:0;
+				font-size: 2em;
+				position:absolute;
+				text-align: center;
+				font-weight: bold;
+				top:0;
+				z-index: 9999;
+			}
+			#Cortina[st="0"]{
+				display: none;
+				height:0;
+				margin : 0;
+				overflow: hidden;
+				padding:0 ;
+				width:0;
+			}
+			#Cortina[st="1"]{
+				display: ;
+				height:100%;
+				margin : 0;
+				overflow: hidden;
+				padding:5em 1em;
+				width:100%;
+			}
+		</style>
+	</head>
+	<body style="padding-top: 60px;">
+		<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+			<div class="navbar-header">
+		    	<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex6-collapse">
+		        	<span class="sr-only">Menu</span>
+		        	<span class="icon-bar"></span>
+		        	<span class="icon-bar"></span>
+		        	<span class="icon-bar"></span>
+		      	</button>
+	      		<a class="navbar-brand" href="#">SUA UNAD</a>
+	    	</div>
+		    <!-- Collect the nav links, forms, and other content for toggling -->
+		    <div class="collapse navbar-collapse navbar-ex6-collapse">
+		    	<ul class="nav navbar-nav">
+		        	<li class="active topActividades"><a href="#">Top Actividades</a></li>
+		        	<li class="active sincronizar"><a href="#">Sincronizar</a></li>
+		        	<li class="active"><a href="#">Salir</a></li>
+		      	</ul>
+	    	</div><!-- /.navbar-collapse -->
+  		</nav>
+ 		<div id="cuerpoActividades" class="col-sm-12" style="padding-bottom: 60px;"></div>
+		<nav class="navbar navbar-default navbar-fixed-bottom" role="navigation">
+			<div class="navbar-header">
+		    	<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex7-collapse">
+		        	<span class="sr-only">Menu 2</span>
+		        	<span class="icon-bar"></span>
+		        	<span class="icon-bar"></span>
+		        	<span class="icon-bar"></span>
+		      	</button>
+	      		<a class="navbar-brand" href="#">Herramientas</a>
+	    	</div>
+		    <!-- Collect the nav links, forms, and other content for toggling -->
+		    <div class="collapse navbar-collapse navbar-ex7-collapse">
+		    	<ul class="nav navbar-nav">
+		        	<li class="active actCerradas"><a href="#">Actividades Cerradas</a></li>
+		        	<li class="active actSinCerrar"><a href="#">Actividades Sin Cerrar</a></li>
+		        	<li class="active actTodas"><a href="#">Todas las Actividades</a></li>
+		      	</ul>
+	    	</div><!-- /.navbar-collapse -->
+  		</nav>
+  		<div id="Cortina">CARGANDO</div>
+		<script>
+			$(document).ready(function(){
+				var FORM={
+					dataPrin:{}
+				};
+				var db;
+				var nameDB = 'SUA_para_UNAD';
+				var versionDB = '2';
+				var numEntrada = 0;
+				var utilidades = {
+					abreCargador:function(){$('#Cortina').attr('st','1')},
+					cierraCargador:function(){$('#Cortina').attr('st','0')},
+					cargarData:function(){
+						transaccionDB(nameDB,versionDB, function(db,event){
+							var tx = db.transaction("dataUniq", "readonly");
+							var store = tx.objectStore("dataUniq");
+							var index = store.index("by_id");
+							var request = index.get(1);
+							request.onsuccess = function() {
+								var matching = request.result;
+								if(matching!==undefined){
+									FORM.dataPrin.cursos=matching.data[0][3];
+									FORM.dataPrin.actividades=matching.data[0][2];
+									$('li.topActividades').click();
+									iniciarContadorTime();
+								}else
+									alert('Sin resultados. Debes sincronizar primero la Base de Datos.'+"\n\nVe al menu SUA UNAD opcion Sinconizar");
+							};
+						});
+					},cargarDB:function(){
+						transaccionDB= function(nameDB, version,  comandoCreadoDB,comandoDBExistente){
+							var indexedDB = window.indexedDB || window.webKitIndexedDB || window.mozIndexedDB
+							if(indexedDB){
+								var request = indexedDB.open(nameDB,version);//NomBd, Version
+								request.onupgradeneeded = function(event) {//cuando se crea por primera vez la BD 
+								  	var db = request.result;
+								  	console.log('DB Creada');
+								  	comandoCreadoDB(db,event,request);
+								  	db.close();
+								};
+								request.onsuccess = function(event) {//Cuando la BD es abierta
+									var db = request.result;
+									console.log('DB abierta');
+								  	if(!comandoDBExistente)comandoDBExistente=comandoCreadoDB;
+								  	comandoDBExistente(db,event, request);
+								  	db.close();
+								};
+							};
+						}
+						transaccionDB(nameDB,versionDB,function(db, event, request){
+							if(numEntrada!=0)return false;
+						  	if (event.oldVersion == 0) {//No existe versión anterior
+							    //Creo las tablas dataUniq
+						    	var store = db.createObjectStore("dataUniq", {keyPath: "id"});
+							  	var titleIndex = store.createIndex("by_id", "id", {unique: true});
+						  	}
+						  	numEntrada = 1;
+						});
+					}
+				}
+				$('li.sincronizar').click(function(){
+					utilidades.abreCargador();
+					$.ajax({
+						url: 'http://savne.net/apps_web/SUA/dataActivitis.php',
+						dataType : 'jsonp',
+						data:{0:0},
+						timeout: 60000,
+						success: function(data) {
+							$.each(data[0][2], function( index, act ) {
+								if(act.diaini<10)act.diaini='0'+act.diaini;
+								if(act.diafin<10)act.diafin='0'+act.diafin;
+								if(act.mesini<10)act.mesini='0'+act.mesini;
+								if(act.mesfin<10)act.mesfin='0'+act.mesfin;
+								if(act.agnoini<10)act.agnoini='0'+act.agnoini;
+								if(act.agnofin<10)act.agnofin='0'+act.agnofin;
+							  	act.fecIni = act.diaini+'/'+act.mesini+'/'+act.agnoini;
+							  	act.fecFin = act.diafin+'/'+act.mesfin+'/'+act.agnofin;
+							  	act.fecIniISO = act.agnoini+'-'+act.mesini+'-'+act.diaini;
+							  	act.fecFinISO = act.agnofin+'-'+act.mesfin+'-'+act.diafin;
+							  	act.fecIniNumeric = parseInt(act.agnoini+''+act.mesini+''+act.diaini);
+							  	act.fecFinNumeric = parseInt(act.agnofin+''+act.mesfin+''+act.diafin);
+							});
+							transaccionDB(nameDB,versionDB, function(db,event){							
+								var tx = db.transaction("dataUniq", "readwrite");
+								var store = tx.objectStore("dataUniq");
+								//if el id 1 ya existe el valor se actualizara sino existe se insertara
+								var request = store.put({id: 1, data: data});
+								request.onsuccess = function (e) {alert('Insercion/Edicion Correcta');};
+								request.onerror = function (e) {alert('Error al guardar.');};
+							});
+							utilidades.cierraCargador();
+						},
+						error:function( jqXHR, textStatus ) {
+		  					alert( "Request failed: " + textStatus );
+		  					utilidades.cierraCargador();
+						}
+					});
+				});
+				$('li.topActividades').click(function(){
+					FORM.dataPrin.actividades = _.sortBy(FORM.dataPrin.actividades, 'fecFinNumeric');
+					renderizarActividades(FORM.dataPrin.actividades);
+				});
+				function renderizarActividades(data){
+					$('#cuerpoActividades').html('');
+					moment.locale('es');
+					$.each(data, function( index, act ) {
+						curso=_.where(FORM.dataPrin.cursos, {unad40id: act.ofer18curso});
+						var now = moment().format('YYYY-MM-DD HH:mm:ss');
+						var nSegs=moment(act.fecFinISO+" 23:59:59").diff(moment(), 's', true);
+						var nDias=moment(act.fecFinISO+" 23:59:59").diff(moment(), 'd');
+						if(nDias>5)cierre=1;//Verde
+						if(nDias<=5)cierre=2;//Naranja
+						if(nDias<=2)cierre=3;//Rojo
+						if(nDias<=0)cierre=0;//Negro
+						if(nSegs<0)msg='Cerro hace: ';
+						else msg='Cierra en: ';
+						html='';
+						html+='<div class="col-sm-12 actividad" i='+index+'>';
+						html+='<div class="col-sm-12 titulo">';
+						html+='<spam class="pull-left">'+(index+1)+')</spam> '+curso[0].unad40nombre+' ('+act.ofer18curso+'A_'+act.ofer18per_aca+')<br>';
+						html+=act.ofer04nombre;
+						html+='</div>';
+						html+='<div class="col-sm-12">';
+						html+='Del '+moment(act.fecIniISO).format("dddd D MMMM  YYYY")+' al '+moment(act.fecFinISO).format("dddd D MMMM  YYYY");
+						html+='</div>';
+						html+='<div class="col-sm-offset-1 col-sm-10 col-xs-offset-1 col-xs-10 descripcion">';
+						html+=act.ofer04detalle;
+						html+='</div>';
+						html+='<div class="col-sm-12">';
+						html+='Calificacion 0(0%) de '+act.ofer18peso;
+						html+='</div>';
+						html+='<div class="col-sm-12 tiempoCierre" cierre="'+cierre+'">';
+						html+=msg+' '+moment(now).preciseDiff(act.fecFinISO+" 23:59:59");
+						html+='</div>';
+						html+='</div>';
+						$('#cuerpoActividades').append(html);
+					});
+				};
+				$('li.actCerradas').click(function(){
+					$('#cuerpoActividades .actividad').css('display','none');
+					$('#cuerpoActividades .actividad .tiempoCierre[cierre="0"]').parent().css('display','');
+				});
+				$('li.actSinCerrar').click(function(){
+					$('#cuerpoActividades .actividad').css('display','none');
+					$('#cuerpoActividades .actividad .tiempoCierre[cierre="1"]').parent().css('display','');
+					$('#cuerpoActividades .actividad .tiempoCierre[cierre="2"]').parent().css('display','');
+					$('#cuerpoActividades .actividad .tiempoCierre[cierre="3"]').parent().css('display','');
+				});
+				$('li.actTodas').click(function(){
+					$('#cuerpoActividades .actividad').css('display','');
+				});
+				function iniciarContadorTime(){
+					setInterval(function () {
+						$.each(FORM.dataPrin.actividades, function( index, act ) {
+							var msg='';
+							var now = moment().format('YYYY-MM-DD HH:mm:ss');
+							var nSegs=moment(act.fecFinISO+" 23:59:59").diff(moment(), 's', true);
+							var nDias=moment(act.fecFinISO+" 23:59:59").diff(moment(), 'd');
+							if(nDias>5)cierre=1;//Verde
+							if(nDias<=5)cierre=2;//Naranja
+							if(nDias<=2)cierre=3;//Rojo
+							if(nDias<=0)cierre=0;//Negro
+							if(nSegs<0)msg_='Cerro hace: ';
+							else msg_='Cierra en: ';
+							msg+=msg_+' '+moment(now).preciseDiff(act.fecFinISO+" 23:59:59");
+							$('#cuerpoActividades .actividad[i="'+index+'"] .tiempoCierre').html(msg);
+							$('#cuerpoActividades .actividad[i="'+index+'"] .tiempoCierre').attr('cierre',cierre);
+						});
+					}, 2500);
+				}
+				utilidades.cargarDB();
+				utilidades.cargarData();
+				utilidades.cierraCargador();
+				moment.locale('fr', {
+				    months : "Enero_Febrero_Marzo_Abril_Mayo_Junio_Julio_Agosto_Septiembre_Octubre_Noviembre_Diciembre".split("_"),
+				    monthsShort : "Ene._Feb._Mar._Abr._May._Jun._Jul._Ago_Sept._Oct._Nov._Dic.".split("_"),
+				    weekdays : "Domingo_Lunes_Martes_Miercoles_Jueves_Viernes_Sabado".split("_"),
+				    weekdaysShort : "Dom._Lun._Mar._Mier._Jue._Vie._Sab.".split("_"),
+				    weekdaysMin : "Do_Lu_Ma_Mi_Ju_Vi_Sa".split("_"),
+				    longDateFormat : {
+				        LT : "HH:mm",
+				        LTS : "HH:mm:ss",
+				        L : "DD/MM/YYYY",
+				        LL : "D MMMM YYYY",
+				        LLL : "D MMMM YYYY LT",
+				        LLLL : "dddd D MMMM YYYY LT"
+				    },
+				    calendar : {
+				        sameDay: "[Aujourd'hui à] LT",
+				        nextDay: '[Demain à] LT',
+				        nextWeek: 'dddd [à] LT',
+				        lastDay: '[Hier à] LT',
+				        lastWeek: 'dddd [dernier à] LT',
+				        sameElse: 'L'
+				    },
+				    relativeTime : {
+				        future : "dans %s",
+				        past : "il y a %s",
+				        s : "quelques secondes",
+				        m : "une minute",
+				        mm : "%d minutes",
+				        h : "une heure",
+				        hh : "%d heures",
+				        d : "un jour",
+				        dd : "%d jours",
+				        M : "un mois",
+				        MM : "%d mois",
+				        y : "une année",
+				        yy : "%d années"
+				    },
+				    ordinalParse : /\d{1,2}(er|ème)/,
+				    ordinal : function (number) {
+				        return number + (number === 1 ? 'er' : 'ème');
+				    },
+				    meridiemParse: /PD|MD/,
+				    isPM: function (input) {
+				        return input.charAt(0) === 'M';
+				    },
+				    // in case the meridiem units are not separated around 12, then implement
+				    // this function (look at locale/id.js for an example)
+				    // meridiemHour : function (hour, meridiem) {
+				    //     return /* 0-23 hour, given meridiem token and hour 1-12 */
+				    // },
+				    meridiem : function (hours, minutes, isLower) {
+				        return hours < 12 ? 'PD' : 'MD';
+				    },
+				    week : {
+				        dow : 1, // Monday is the first day of the week.
+				        doy : 4  // The week that contains Jan 4th is the first week of the year.
+				    }
+				});
+				moment.locale('es'); // change the global locale to Spanish
+			});
+		</script>  		
+	</body>
+</html>
