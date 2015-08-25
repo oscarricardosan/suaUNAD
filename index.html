@@ -206,11 +206,7 @@
 								var store = tx.objectStore("dataUniq");
 								//if el id 1 ya existe el valor se actualizara sino existe se insertara
 								var request = store.put({id: 1, data: data});
-								request.onsuccess = function (e) {
-									alert('Insercion/Edicion Correcta');
-									window.location.reload();
-									navigator.app.loadUrl('file:///android_asset/www/index.html');
-								};
+								request.onsuccess = function (e) {alert('Insercion/Edicion Correcta');};
 								request.onerror = function (e) {alert('Error al guardar.');};
 							});
 							utilidades.cierraCargador();
