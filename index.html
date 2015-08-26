@@ -94,7 +94,7 @@
 		    	<ul class="nav navbar-nav">
 		        	<li class="active topActividades"><a href="#">Top Actividades</a></li>
 		        	<li class="active sincronizar"><a href="#">Sincronizar</a></li>
-		        	<li class="active" onclick="window.location.reload()"><a href="#">Reinciar</a></li>
+		        	<!--<li class="active" onclick="window.location.reload()"><a href="#">Reinciar</a></li>-->
 		      	</ul>
 	    	</div><!-- /.navbar-collapse -->
   		</nav>
@@ -206,7 +206,10 @@
 								var store = tx.objectStore("dataUniq");
 								//if el id 1 ya existe el valor se actualizara sino existe se insertara
 								var request = store.put({id: 1, data: data});
-								request.onsuccess = function (e) {alert('Insercion/Edicion Correcta. Favor reiniciar la aplicacion.');};
+								request.onsuccess = function (e) {
+									alert('Insercion/Edicion Correcta. Favor reiniciar la aplicacion.');
+									window.location.reload();
+								};
 								request.onerror = function (e) {alert('Error al guardar.');};
 							});
 							utilidades.cierraCargador();
