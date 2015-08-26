@@ -168,6 +168,9 @@
 								  	comandoDBExistente(db,event, request);
 								  	db.close();
 								};
+							}else{
+								alert("Lo sentimos. Movil no soporta IndexDB.");
+								return false;
 							};
 						}
 						transaccionDB(nameDB,versionDB,function(db, event, request){
