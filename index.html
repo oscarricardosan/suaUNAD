@@ -122,6 +122,7 @@
   		<div id="Cortina">CARGANDO</div>
 		<script>
 			$(document).ready(function(){
+$('#cuerpoActividades').append('Documento listo.<br>');
 				var FORM={
 					dataPrin:{}
 				};
@@ -184,6 +185,7 @@
 						});
 					}
 				}
+$('#cuerpoActividades').append('Utilidades cargadas.<br>');
 				$('li.sincronizar').click(function(){
 					utilidades.abreCargador();
 					$.ajax({
@@ -229,6 +231,40 @@
 					FORM.dataPrin.actividades = _.sortBy(FORM.dataPrin.actividades, 'fecFinNumeric');
 					renderizarActividades(FORM.dataPrin.actividades);
 				});
+				$('li.actCerradas').click(function(){
+					$('#cuerpoActividades .actividad').css('display','none');
+					$('#cuerpoActividades .actividad .tiempoCierre[cierre="0"]').parent().css('display','');
+				});
+				$('li.actSinCerrar').click(function(){
+					$('#cuerpoActividades .actividad').css('display','none');
+					$('#cuerpoActividades .actividad .tiempoCierre[cierre="1"]').parent().css('display','');
+					$('#cuerpoActividades .actividad .tiempoCierre[cierre="2"]').parent().css('display','');
+					$('#cuerpoActividades .actividad .tiempoCierre[cierre="3"]').parent().css('display','');
+				});
+				$('li.actTodas').click(function(){
+					$('#cuerpoActividades .actividad').css('display','');
+				});
+$('#cuerpoActividades').append('Elementos programados.<br>');
+				function iniciarContadorTime(){
+					setInterval(function(){ajustarCronometros()}, 2500);
+				}
+				function ajustarCronometros(){
+					$.each(FORM.dataPrin.actividades, function( index, act ) {
+						var msg='';
+						var now = moment().format('YYYY-MM-DD HH:mm:ss');
+						var nSegs=moment(act.fecFinISO+" 23:59:59").diff(moment(), 's', true);
+						var nDias=moment(act.fecFinISO+" 23:59:59").diff(moment(), 'd');
+						if(nDias>5)cierre=1;//Verde
+						if(nDias<=5)cierre=2;//Naranja
+						if(nDias<=2)cierre=3;//Rojo
+						if(nDias<=0)cierre=0;//Negro
+						if(nSegs<0)msg_='Cerro hace: ';
+						else msg_='Cierra en: ';
+						msg+=msg_+' '+moment(now).preciseDiff(act.fecFinISO+" 23:59:59");
+						$('#cuerpoActividades .actividad[i="'+index+'"] .tiempoCierre').html(msg);
+						$('#cuerpoActividades .actividad[i="'+index+'"] .tiempoCierre').attr('cierre',cierre);
+					});
+				}
 				function renderizarActividades(data){
 					$('#cuerpoActividades').html('');
 					moment.locale('es');
@@ -256,42 +292,13 @@
 					});
 					ajustarCronometros();
 				};
-				$('li.actCerradas').click(function(){
-					$('#cuerpoActividades .actividad').css('display','none');
-					$('#cuerpoActividades .actividad .tiempoCierre[cierre="0"]').parent().css('display','');
-				});
-				$('li.actSinCerrar').click(function(){
-					$('#cuerpoActividades .actividad').css('display','none');
-					$('#cuerpoActividades .actividad .tiempoCierre[cierre="1"]').parent().css('display','');
-					$('#cuerpoActividades .actividad .tiempoCierre[cierre="2"]').parent().css('display','');
-					$('#cuerpoActividades .actividad .tiempoCierre[cierre="3"]').parent().css('display','');
-				});
-				$('li.actTodas').click(function(){
-					$('#cuerpoActividades .actividad').css('display','');
-				});
-				function iniciarContadorTime(){
-					setInterval(ajustarCronometros(), 2500);
-				}
-				function ajustarCronometros(){
-					$.each(FORM.dataPrin.actividades, function( index, act ) {
-						var msg='';
-						var now = moment().format('YYYY-MM-DD HH:mm:ss');
-						var nSegs=moment(act.fecFinISO+" 23:59:59").diff(moment(), 's', true);
-						var nDias=moment(act.fecFinISO+" 23:59:59").diff(moment(), 'd');
-						if(nDias>5)cierre=1;//Verde
-						if(nDias<=5)cierre=2;//Naranja
-						if(nDias<=2)cierre=3;//Rojo
-						if(nDias<=0)cierre=0;//Negro
-						if(nSegs<0)msg_='Cerro hace: ';
-						else msg_='Cierra en: ';
-						msg+=msg_+' '+moment(now).preciseDiff(act.fecFinISO+" 23:59:59");
-						$('#cuerpoActividades .actividad[i="'+index+'"] .tiempoCierre').html(msg);
-						$('#cuerpoActividades .actividad[i="'+index+'"] .tiempoCierre').attr('cierre',cierre);
-					});
-				}
+$('#cuerpoActividades').append('Funciones Definidas.<br>');
 				utilidades.cargarDB();
+$('#cuerpoActividades').append('BD Cargada.<br>');
 				utilidades.cargarData();
+$('#cuerpoActividades').append('Data Cargada.<br>');
 				utilidades.cierraCargador();
+$('#cuerpoActividades').append('Finaliza Carga.<br>');
 				moment.locale('fr', {
 				    months : "Enero_Febrero_Marzo_Abril_Mayo_Junio_Julio_Agosto_Septiembre_Octubre_Noviembre_Diciembre".split("_"),
 				    monthsShort : "Ene._Feb._Mar._Abr._May._Jun._Jul._Ago_Sept._Oct._Nov._Dic.".split("_"),
@@ -350,6 +357,7 @@
 				        doy : 4  // The week that contains Jan 4th is the first week of the year.
 				    }
 				});
+				$('#cuerpoActividades').append('Lenguaje definido.<br>');
 				moment.locale('es'); // change the global locale to Spanish
 			});
 		</script>  		
