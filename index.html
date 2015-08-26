@@ -160,13 +160,13 @@ $('#cuerpoActividades').append('Documento listo.<br>');
 								var request = indexedDB.open(nameDB,version);//NomBd, Version
 								request.onupgradeneeded = function(event) {//cuando se crea por primera vez la BD 
 								  	var db = request.result;
-								  	console.log('DB Creada');
+$('#cuerpoActividades').append('DB Creada<br>');
 								  	comandoCreadoDB(db,event,request);
 								  	db.close();
 								};
 								request.onsuccess = function(event) {//Cuando la BD es abierta
 									var db = request.result;
-									console.log('DB abierta');
+$('#cuerpoActividades').append('DB abierta<br>');
 								  	if(!comandoDBExistente)comandoDBExistente=comandoCreadoDB;
 								  	comandoDBExistente(db,event, request);
 								  	db.close();
@@ -196,6 +196,7 @@ $('#cuerpoActividades').append('Utilidades cargadas.<br>');
 						data:{0:0},
 						timeout: 60000,
 						success: function(data) {
+$('#cuerpoActividades').append('Data cargada<br>');
 							$.each(data[0][2], function( index, act ) {
 								if(act.diaini<10)act.diaini='0'+act.diaini;
 								if(act.diafin<10)act.diafin='0'+act.diafin;
