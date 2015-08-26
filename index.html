@@ -14,6 +14,8 @@
   		<script type="text/javascript" src="js/moment.min.js"></script>
   		<script type="text/javascript" src="js/readable-range.js"></script>
   		<script type="text/javascript" src="js/indexeddbshim.min.js"></script>
+  		<script type="text/javascript" src="js/pouchdb-4.0.0.min.js"></script>
+  		<script type="text/javascript" src="js/momentJS_espanol.js"></script>
   		<!-- Latest compiled and minified CSS -->
 		<link rel="stylesheet" href="bootstrap-3.3.5-dist/css/bootstrap.min.css">
 		<!-- Latest compiled and minified JavaScript -->
@@ -95,9 +97,9 @@
 		    <!-- Collect the nav links, forms, and other content for toggling -->
 		    <div class="collapse navbar-collapse navbar-ex6-collapse">
 		    	<ul class="nav navbar-nav">
-		        	<li class="active topActividades"><a href="#">Top Actividades</a></li>
 		        	<li class="active sincronizar"><a href="#">Sincronizar</a></li>
-		        	<!--<li class="active" onclick="window.location.reload()"><a href="#">Reinciar</a></li>-->
+		        	<li class="active" onclick="$('#modalAyuda').modal();"><a href="#">Ayuda</a></li>
+		        	<li class="active" onclick="window.location.reload()"><a href="#">Recargar</a></li>
 		      	</ul>
 	    	</div><!-- /.navbar-collapse -->
   		</nav>
@@ -122,75 +124,56 @@
 	    	</div><!-- /.navbar-collapse -->
   		</nav>
   		<div id="Cortina">CARGANDO</div>
+  		<div class="modal fade" id="modalAyuda">
+		  	<div class="modal-dialog">
+			    <div class="modal-content">
+			      	<div class="modal-header">
+		        		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        		<h4 class="modal-title">Bienvedido a SUA UNAD</h4>
+	      			</div>
+		      		<div class="modal-body">
+		        		<p>SUA UNAD es una aplicacion desarrollada para la gesti&oacute;n de actividades acad&eacute;micas.</p>
+		        		<p>SUA UNAD tiene las siguientes opciones:</p>
+		        		<ul>
+		        			<li>
+		        				<b>Menú Superior(SUA UNAD):</b> En el encontraras opciones generales como:
+		        				<ul>
+		        					<li>Sincronizar: Sincroniza la app con la base de datos dela UNAD. Recomdable hacerlo una vez a la semana.</il>
+		        					<li>Recargar: Actualizara la app.</il>
+		        				</ul>
+		        				<b>Menú Inferior(HERRAMIENTAS):</b> En el encontrara herramientas como:
+		        				<ul>
+		        					<li>Actividades Cerradas: Todas las actividades que ya han sido cerradas.</il>
+		        					<li>Actividades Sin Cerrar: Todas las actividades que a&uacute;n no han sido cerradas.</il>
+		        					<li>Todas las Actividades: Todas las actividades cerradas y no cerradas.</il>
+		        				</ul>
+		        			</il>
+		        		</ul>
+		        		<div style="font-weight: bold;font-size: 0.9em; margin:15px 0; text-align: right;" >
+		        			Desarrollada por oscarricardosan@gmail.com
+		        		</div>
+		      		</div>
+		      		<div class="modal-footer">
+		        		<button type="button" class="btn btn-default" data-dismiss="modal">Entendido</button>
+		      		</div>
+		    	</div><!-- /.modal-content -->
+		  	</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
 		<script>
 			$(document).ready(function(){
-$('#cuerpoActividades').append('Documento listo.<br>');
 				var FORM={
 					dataPrin:{}
 				};
-				var db;
-				var nameDB = 'SUA_para_UNAD';
-				var versionDB = '2';
-				var numEntrada = 0;
+				var nameDB = 'SUA_UNAD';
+				var db = new PouchDB(nameDB);
+				var remoteCouch = false;
+				
 				var utilidades = {
 					abreCargador:function(){$('#Cortina').attr('st','1')},
 					cierraCargador:function(){$('#Cortina').attr('st','0')},
-					cargarData:function(){
-						transaccionDB(nameDB,versionDB, function(db,event){
-							var tx = db.transaction("dataUniq", "readonly");
-							var store = tx.objectStore("dataUniq");
-							var index = store.index("by_id");
-							var request = index.get(1);
-							request.onsuccess = function() {
-								var matching = request.result;
-								if(matching!==undefined){
-									FORM.dataPrin.cursos=matching.data[0][3];
-									FORM.dataPrin.actividades=matching.data[0][2];
-									$('li.topActividades').click();
-									iniciarContadorTime();
-									$('li.actSinCerrar').click();
-								}else
-									alert('Sin resultados. Debes sincronizar primero la Base de Datos.'+"\n\nVe al menu SUA UNAD opcion Sinconizar");
-							};
-							request.onerror = function(event){
-								alert("DB error: "+event.target.errorCode);
-							};
-						});
-					},cargarDB:function(){
-						transaccionDB= function(nameDB, version,  comandoCreadoDB,comandoDBExistente){
-							var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
-							if(indexedDB){
-								var request = indexedDB.open(nameDB,version);//NomBd, Version
-								request.onupgradeneeded = function(event) {//cuando se crea por primera vez la BD 
-								  	var db = request.result;
-$('#cuerpoActividades').append('DB Creada<br>');
-								  	comandoCreadoDB(db,event,request);
-								  	db.close();
-								};
-								request.onsuccess = function(event) {//Cuando la BD es abierta
-									var db = request.result;
-$('#cuerpoActividades').append('DB abierta<br>');
-								  	if(!comandoDBExistente)comandoDBExistente=comandoCreadoDB;
-								  	comandoDBExistente(db,event, request);
-								  	db.close();
-								};
-							}else{
-								alert("Lo sentimos. Movil no soporta IndexDB.");
-								return false;
-							};
-						}
-						transaccionDB(nameDB,versionDB,function(db, event, request){
-							if(numEntrada!=0)return false;
-						  	if (event.oldVersion == 0) {//No existe versión anterior
-							    //Creo las tablas dataUniq
-						    	var store = db.createObjectStore("dataUniq", {keyPath: "id"});
-							  	var titleIndex = store.createIndex("by_id", "id", {unique: true});
-						  	}
-						  	numEntrada = 1;
-						});
-					}
+					log_: function(msg){$('#cuerpoActividades').append(msg);}
 				}
-$('#cuerpoActividades').append('Utilidades cargadas.<br>');
+				utilidades.log_('Utilidades cargadas.<br>');
 				$('li.sincronizar').click(function(){
 					utilidades.abreCargador();
 					$.ajax({
@@ -199,7 +182,7 @@ $('#cuerpoActividades').append('Utilidades cargadas.<br>');
 						data:{0:0},
 						timeout: 60000,
 						success: function(data) {
-$('#cuerpoActividades').append('Data cargada<br>');
+							utilidades.log_('Data cargada<br>');
 							$.each(data[0][2], function( index, act ) {
 								if(act.diaini<10)act.diaini='0'+act.diaini;
 								if(act.diafin<10)act.diafin='0'+act.diafin;
@@ -214,17 +197,17 @@ $('#cuerpoActividades').append('Data cargada<br>');
 							  	act.fecIniNumeric = parseInt(act.agnoini+''+act.mesini+''+act.diaini);
 							  	act.fecFinNumeric = parseInt(act.agnofin+''+act.mesfin+''+act.diafin);
 							});
-							transaccionDB(nameDB,versionDB, function(db,event){							
-								var tx = db.transaction("dataUniq", "readwrite");
-								var store = tx.objectStore("dataUniq");
-								//if el id 1 ya existe el valor se actualizara sino existe se insertara
-								var request = store.put({id: 1, data: data});
-								request.onsuccess = function (e) {
-									alert('Sincronizacion exitosa. La aplicacion se reiniciara.');
-									window.location.reload();
-								};
-								request.onerror = function (e) {alert('Error al guardar.');};
-							});
+							db.get('dataUnad').then(function(doc) {
+							  	return db.put({
+									_id:'dataUnad',
+									_rev: doc._rev,
+									cuerpo:data
+								});
+							}).then(function(response) {
+								alert('Sincronizacion Exitosa.');cargarVariablesDesdeDB();
+								cargarActividadesOrderFecha();
+							})
+							.catch(function (err) {alert(err);});
 							utilidades.cierraCargador();
 						},
 						error:function( jqXHR, textStatus ) {
@@ -232,10 +215,6 @@ $('#cuerpoActividades').append('Data cargada<br>');
 		  					utilidades.cierraCargador();
 						}
 					});
-				});
-				$('li.topActividades').click(function(){
-					FORM.dataPrin.actividades = _.sortBy(FORM.dataPrin.actividades, 'fecFinNumeric');
-					renderizarActividades(FORM.dataPrin.actividades);
 				});
 				$('li.actCerradas').click(function(){
 					$('#cuerpoActividades .actividad').css('display','none');
@@ -250,7 +229,7 @@ $('#cuerpoActividades').append('Data cargada<br>');
 				$('li.actTodas').click(function(){
 					$('#cuerpoActividades .actividad').css('display','');
 				});
-$('#cuerpoActividades').append('Elementos programados.<br>');
+utilidades.log_('Elementos programados.<br>');
 				function iniciarContadorTime(){
 					setInterval(function(){ajustarCronometros()}, 2500);
 				}
@@ -297,74 +276,47 @@ $('#cuerpoActividades').append('Elementos programados.<br>');
 						$('#cuerpoActividades').append(html);
 					});
 					ajustarCronometros();
+					iniciarContadorTime();
 				};
-$('#cuerpoActividades').append('Funciones Definidas.<br>');
-				utilidades.cargarDB();
-$('#cuerpoActividades').append('BD Cargada.<br>');
-				utilidades.cargarData();
-$('#cuerpoActividades').append('Data Cargada.<br>');
+				function cargarActividadesOrderFecha(){
+					FORM.dataPrin.actividades = _.sortBy(FORM.dataPrin.actividades, 'fecFinNumeric');
+					renderizarActividades(FORM.dataPrin.actividades);
+					$('li.actSinCerrar').click();
+				};
+				function estructuraDocumentos(){
+					db.put({_id: 'dataUnad'})
+					.then(function (response) {primerIngreso();})
+					.catch(function (err) {console.log(err);cargarVariablesDesdeDB()});
+					
+					db.put({_id: 'dataAdicional'})
+					.then(function (response) {})
+					.catch(function (err) {console.log(err);});
+					
+					db.put({_id: 'dataPersonal'})
+					.then(function (response) {})
+					.catch(function (err) {console.log(err);});
+				}
+				function cargarVariablesDesdeDB(){
+					db.get('dataUnad').then(function(doc) {
+						FORM.dataPrin.cursos=doc.cuerpo[0][3];
+						FORM.dataPrin.actividades=doc.cuerpo[0][2];
+						cargarActividadesOrderFecha()
+					}).then(function(response) {utilidades.log_('Data Cargada a FORM.<br>');})
+						.catch(function (err) {alert(err);
+					})
+				}
+				function primerIngreso(){
+					alert("Bienvenido a SUA UNAD. \nEs tu primer ingreso la app se sincronizara automaticamente.");
+					$('#modalAyuda').modal();
+					$('li.sincronizar').click();
+				}
+				$('#modalAyuda').on('shown.bs.modal', function () {
+					$('#myInput').focus();
+				})
+utilidades.log_('Funciones Definidas.<br>');
+				estructuraDocumentos();
+utilidades.log_('Finaliza carga.<br>');
 				utilidades.cierraCargador();
-$('#cuerpoActividades').append('Finaliza Carga.<br>');
-				moment.locale('fr', {
-				    months : "Enero_Febrero_Marzo_Abril_Mayo_Junio_Julio_Agosto_Septiembre_Octubre_Noviembre_Diciembre".split("_"),
-				    monthsShort : "Ene._Feb._Mar._Abr._May._Jun._Jul._Ago_Sept._Oct._Nov._Dic.".split("_"),
-				    weekdays : "Domingo_Lunes_Martes_Miercoles_Jueves_Viernes_Sabado".split("_"),
-				    weekdaysShort : "Dom._Lun._Mar._Mier._Jue._Vie._Sab.".split("_"),
-				    weekdaysMin : "Do_Lu_Ma_Mi_Ju_Vi_Sa".split("_"),
-				    longDateFormat : {
-				        LT : "HH:mm",
-				        LTS : "HH:mm:ss",
-				        L : "DD/MM/YYYY",
-				        LL : "D MMMM YYYY",
-				        LLL : "D MMMM YYYY LT",
-				        LLLL : "dddd D MMMM YYYY LT"
-				    },
-				    calendar : {
-				        sameDay: "[Aujourd'hui à] LT",
-				        nextDay: '[Demain à] LT',
-				        nextWeek: 'dddd [à] LT',
-				        lastDay: '[Hier à] LT',
-				        lastWeek: 'dddd [dernier à] LT',
-				        sameElse: 'L'
-				    },
-				    relativeTime : {
-				        future : "dans %s",
-				        past : "il y a %s",
-				        s : "quelques secondes",
-				        m : "une minute",
-				        mm : "%d minutes",
-				        h : "une heure",
-				        hh : "%d heures",
-				        d : "un jour",
-				        dd : "%d jours",
-				        M : "un mois",
-				        MM : "%d mois",
-				        y : "une année",
-				        yy : "%d années"
-				    },
-				    ordinalParse : /\d{1,2}(er|ème)/,
-				    ordinal : function (number) {
-				        return number + (number === 1 ? 'er' : 'ème');
-				    },
-				    meridiemParse: /PD|MD/,
-				    isPM: function (input) {
-				        return input.charAt(0) === 'M';
-				    },
-				    // in case the meridiem units are not separated around 12, then implement
-				    // this function (look at locale/id.js for an example)
-				    // meridiemHour : function (hour, meridiem) {
-				    //     return /* 0-23 hour, given meridiem token and hour 1-12 */
-				    // },
-				    meridiem : function (hours, minutes, isLower) {
-				        return hours < 12 ? 'PD' : 'MD';
-				    },
-				    week : {
-				        dow : 1, // Monday is the first day of the week.
-				        doy : 4  // The week that contains Jan 4th is the first week of the year.
-				    }
-				});
-				$('#cuerpoActividades').append('Lenguaje definido.<br>');
-				moment.locale('es'); // change the global locale to Spanish
 			});
 		</script>  		
 	</body>
