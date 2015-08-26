@@ -229,15 +229,6 @@
 					moment.locale('es');
 					$.each(data, function( index, act ) {
 						curso=_.where(FORM.dataPrin.cursos, {unad40id: act.ofer18curso});
-						var now = moment().format('YYYY-MM-DD HH:mm:ss');
-						var nSegs=moment(act.fecFinISO+" 23:59:59").diff(moment(), 's', true);
-						var nDias=moment(act.fecFinISO+" 23:59:59").diff(moment(), 'd');
-						if(nDias>5)cierre=1;//Verde
-						if(nDias<=5)cierre=2;//Naranja
-						if(nDias<=2)cierre=3;//Rojo
-						if(nDias<=0)cierre=0;//Negro
-						if(nSegs<0)msg='Cerro hace: ';
-						else msg='Cierra en: ';
 						html='';
 						html+='<div class="col-sm-12 actividad" i='+index+'>';
 						html+='<div class="col-sm-12 titulo">';
@@ -253,12 +244,12 @@
 						html+='<div class="col-sm-12">';
 						html+='Calificacion 0(0%) de '+act.ofer18peso;
 						html+='</div>';
-						html+='<div class="col-sm-12 tiempoCierre" cierre="'+cierre+'">';
-						html+=msg+' '+moment(now).preciseDiff(act.fecFinISO+" 23:59:59");
+						html+='<div class="col-sm-12 tiempoCierre" cierre="">';
 						html+='</div>';
 						html+='</div>';
 						$('#cuerpoActividades').append(html);
 					});
+					ajustarCronometros();
 				};
 				$('li.actCerradas').click(function(){
 					$('#cuerpoActividades .actividad').css('display','none');
@@ -274,23 +265,24 @@
 					$('#cuerpoActividades .actividad').css('display','');
 				});
 				function iniciarContadorTime(){
-					setInterval(function () {
-						$.each(FORM.dataPrin.actividades, function( index, act ) {
-							var msg='';
-							var now = moment().format('YYYY-MM-DD HH:mm:ss');
-							var nSegs=moment(act.fecFinISO+" 23:59:59").diff(moment(), 's', true);
-							var nDias=moment(act.fecFinISO+" 23:59:59").diff(moment(), 'd');
-							if(nDias>5)cierre=1;//Verde
-							if(nDias<=5)cierre=2;//Naranja
-							if(nDias<=2)cierre=3;//Rojo
-							if(nDias<=0)cierre=0;//Negro
-							if(nSegs<0)msg_='Cerro hace: ';
-							else msg_='Cierra en: ';
-							msg+=msg_+' '+moment(now).preciseDiff(act.fecFinISO+" 23:59:59");
-							$('#cuerpoActividades .actividad[i="'+index+'"] .tiempoCierre').html(msg);
-							$('#cuerpoActividades .actividad[i="'+index+'"] .tiempoCierre').attr('cierre',cierre);
-						});
-					}, 2500);
+					setInterval(ajustarCronometros(), 2500);
+				}
+				function ajustarCronometros(){
+					$.each(FORM.dataPrin.actividades, function( index, act ) {
+						var msg='';
+						var now = moment().format('YYYY-MM-DD HH:mm:ss');
+						var nSegs=moment(act.fecFinISO+" 23:59:59").diff(moment(), 's', true);
+						var nDias=moment(act.fecFinISO+" 23:59:59").diff(moment(), 'd');
+						if(nDias>5)cierre=1;//Verde
+						if(nDias<=5)cierre=2;//Naranja
+						if(nDias<=2)cierre=3;//Rojo
+						if(nDias<=0)cierre=0;//Negro
+						if(nSegs<0)msg_='Cerro hace: ';
+						else msg_='Cierra en: ';
+						msg+=msg_+' '+moment(now).preciseDiff(act.fecFinISO+" 23:59:59");
+						$('#cuerpoActividades .actividad[i="'+index+'"] .tiempoCierre').html(msg);
+						$('#cuerpoActividades .actividad[i="'+index+'"] .tiempoCierre').attr('cierre',cierre);
+					});
 				}
 				utilidades.cargarDB();
 				utilidades.cargarData();
