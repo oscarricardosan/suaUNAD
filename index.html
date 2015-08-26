@@ -155,7 +155,7 @@ $('#cuerpoActividades').append('Documento listo.<br>');
 						});
 					},cargarDB:function(){
 						transaccionDB= function(nameDB, version,  comandoCreadoDB,comandoDBExistente){
-							var indexedDB = window.indexedDB || window.webKitIndexedDB || window.mozIndexedDB
+							var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
 							if(indexedDB){
 								var request = indexedDB.open(nameDB,version);//NomBd, Version
 								request.onupgradeneeded = function(event) {//cuando se crea por primera vez la BD 
