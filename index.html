@@ -209,7 +209,7 @@
 								//if el id 1 ya existe el valor se actualizara sino existe se insertara
 								var request = store.put({id: 1, data: data});
 								request.onsuccess = function (e) {
-									alert('Insercion/Edicion Correcta. Favor reiniciar la aplicacion.');
+									alert('Sincronizacion exitosa. La aplicacion se reiniciara.');
 									window.location.reload();
 								};
 								request.onerror = function (e) {alert('Error al guardar.');};
