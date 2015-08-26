@@ -152,6 +152,9 @@ $('#cuerpoActividades').append('Documento listo.<br>');
 								}else
 									alert('Sin resultados. Debes sincronizar primero la Base de Datos.'+"\n\nVe al menu SUA UNAD opcion Sinconizar");
 							};
+							request.onerror = function(event){
+								alert("DB error: "+event.target.errorCode);
+							};
 						});
 					},cargarDB:function(){
 						transaccionDB= function(nameDB, version,  comandoCreadoDB,comandoDBExistente){
