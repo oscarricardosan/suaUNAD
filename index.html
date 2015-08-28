@@ -26,6 +26,13 @@
 				padding: 8px 4px;
 				border: 1.5px solid #DDA877;
 			}
+			#cuerpoActividades .actividad[tachado="1"] div{
+				display: none;
+			}
+			#cuerpoActividades .actividad[tachado="1"] .titulo{
+				display: inherit!important;
+				text-decoration: line-through;
+			}
 			#cuerpoActividades .actividad .titulo{
 				background: #f3f3f3;
 				border-bottom: 1px solid #cccccc;
@@ -42,6 +49,33 @@
 				margin-bottom:3px;
 				margin-top:3px;
 				padding:5px;
+			}
+			#cuerpoActividades .actividad .menuAct{
+				display: inherit!important;
+				font-size: 1.5em;
+				padding:5px;
+				position: relative;
+			}
+			#cuerpoActividades .actividad .menuAct .opciones{
+				display: inherit!important;
+				font-size: 1.5rem;
+				background: white;
+				border-radius: 0 0 8px 8px;
+				border: 1px solid #ccc;
+			  	box-shadow: -5px 0px 7px #ccc;
+			  	-moz-box-shadow: -5px 0px 7px #ccc;
+			  	-webkit-box-shadow: -5px 0px 7px #ccc;
+				padding: 7px;
+			    position: absolute;
+			    text-align: right;
+    			right: 5px;
+    			top: 1.5em;
+    			z-index: 2;
+			}
+			#cuerpoActividades .actividad .menuAct .opciones .opcion{
+				display: inherit!important;
+				padding: 6px 4px;
+				border-bottom: 1px solid #ccc;
 			}
 			#cuerpoActividades .actividad .tiempoCierre[cierre="1"]{
 				background: #095509;
@@ -229,7 +263,30 @@
 				$('li.actTodas').click(function(){
 					$('#cuerpoActividades .actividad').css('display','');
 				});
-utilidades.log_('Elementos programados.<br>');
+				$("#cuerpoActividades").on("click",".actividad .menuAct", function() {
+					if($(this).find('.opciones').length==0){
+						$('#cuerpoActividades .actividad .menuAct').html('');
+						$(this).html(
+							'<div class="opciones">'+
+							'<div class="opcion" accion="1">Tachar</div>'+
+							'<div class="opcion" accion="2">Adjuntar_Comentario</div>'+
+							'<div class="opcion" accion="3">Adjuntar_Nota</div>'+
+							'</div>'
+						);
+					}else $('#cuerpoActividades .actividad .menuAct').html('');
+				});	
+				$("#cuerpoActividades").on("click",".actividad .menuAct .opciones .opcion[accion='1']", function() {
+					$(this).closest( ".actividad" ).attr('tachado','1');
+					db.get('dataAdicional').then(function(doc) {
+					  	return db.put({
+							_id:'dataUnad',
+							_rev: doc._rev,
+							cuerpo:data
+						});
+					}).then(function(response) {/*No registros*/})
+					.catch(function (err) {alert(err);});
+				});
+				utilidades.log_('Elementos programados.<br>');
 				function iniciarContadorTime(){
 					setInterval(function(){ajustarCronometros()}, 2500);
 				}
@@ -256,8 +313,9 @@ utilidades.log_('Elementos programados.<br>');
 					$.each(data, function( index, act ) {
 						curso=_.where(FORM.dataPrin.cursos, {unad40id: act.ofer18curso});
 						html='';
-						html+='<div class="col-sm-12 actividad" i='+index+'>';
+						html+='<div class="col-sm-12 actividad" i='+index+' id='+act.ofer18curso+'-'+act.ofer18idactividad+'-'+act.ofer18fase+'>';
 						html+='<div class="col-sm-12 titulo">';
+						html+='<spam class="glyphicon glyphicon-th pull-right menuAct"></spam>';
 						html+='<spam class="pull-left">'+(index+1)+')</spam> '+curso[0].unad40nombre+' ('+act.ofer18curso+'A_'+act.ofer18per_aca+')<br>';
 						html+=act.ofer04nombre;
 						html+='</div>';
@@ -313,9 +371,9 @@ utilidades.log_('Elementos programados.<br>');
 				$('#modalAyuda').on('shown.bs.modal', function () {
 					$('#myInput').focus();
 				})
-utilidades.log_('Funciones Definidas.<br>');
+				utilidades.log_('Funciones Definidas.<br>');
 				estructuraDocumentos();
-utilidades.log_('Finaliza carga.<br>');
+				utilidades.log_('Finaliza carga.<br>');
 				utilidades.cierraCargador();
 			});
 		</script>  		
