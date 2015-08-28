@@ -134,6 +134,8 @@
 		        	<li class="active sincronizar"><a href="#">Sincronizar</a></li>
 		        	<li class="active" onclick="$('#modalAyuda').modal();"><a href="#">Ayuda</a></li>
 		        	<li class="active" onclick="window.location.reload()"><a href="#">Recargar</a></li>
+		        	<li class="active verLog"><a href="#">Ver Log</a></li>
+		        	<li class="active configurar"><a href="#">Configurar</a></li>
 		      	</ul>
 	    	</div><!-- /.navbar-collapse -->
   		</nav>
@@ -193,6 +195,110 @@
 		    	</div><!-- /.modal-content -->
 		  	</div><!-- /.modal-dialog -->
 		</div><!-- /.modal -->
+		<div class="modal fade" id="modalLog">
+		  	<div class="modal-dialog">
+			    <div class="modal-content">
+			      	<div class="modal-header">
+		        		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        		<h4 class="modal-title">Log</h4>
+	      			</div>
+		      		<div class="modal-body">
+		        		<div class="cuerpo" ></div>
+		      		</div>
+		      		<div class="modal-footer">
+		        		<button type="button" class="btn btn-default" data-dismiss="modal">Salir</button>
+		      		</div>
+		    	</div><!-- /.modal-content -->
+		  	</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+		
+		<div class="modal fade" id="modalConfiguracion">
+		  	<div class="modal-dialog">
+			    <div class="modal-content">
+			      	<div class="modal-header">
+		        		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        		<h4 class="modal-title">Configuracion</h4>
+	      			</div>
+		      		<div class="modal-body">
+		      			<p>
+		      				Los datos acá suministrados no serán suministrados y/o usados por tercesros. 
+							Son datos que habilitan la funcionalidad de almacenar los datos en un servidor 
+							y el nombre con el cual mostrar quien hizo un comentario o acci&oacute;n.
+		      			</p>
+		        		<div class="form-group">
+					    	<label>Documento de Identidad (cedula, tarjeta de identidad, etc..)</label>
+					    	<input class="form-control" id="idUsu">
+					  	</div>	
+					  	<div class="form-group">
+					    	<label>Nombre para mostrar</label>
+					    	<input class="form-control" id="nombre">
+					  	</div>	
+
+		      		</div>
+		      		<div class="modal-footer">
+		      			<button type="button" class="btn btn-default guardar" data-dismiss="modal">Guardar</button>
+		        		<button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+		      		</div>
+		    	</div><!-- /.modal-content -->
+		  	</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+		<div class="modal fade" id="modalNota">
+		  	<div class="modal-dialog">
+			    <div class="modal-content">
+			      	<div class="modal-header">
+		        		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        		<h4 class="modal-title">Nota</h4>
+	      			</div>
+		      		<div class="modal-body">
+		        		<div class="form-group">
+					    	<label>Nota de la actividad</label>
+				    		<input class="form-control" id="notaAct">
+				    		<label>Sobre <span class="notaTotal"></span></label>
+					  	</div>	
+		      		</div>
+		      		<div class="modal-footer">
+		      			<button type="button" class="btn btn-default guardar" data-dismiss="modal">Guardar</button>
+		        		<button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+		      		</div>
+		    	</div><!-- /.modal-content -->
+		  	</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+		<div class="modal fade" id="modalComentario">
+		  	<div class="modal-dialog">
+			    <div class="modal-content">
+			      	<div class="modal-header">
+		        		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        		<h4 class="modal-title">Comentarios</h4>
+	      			</div>
+		      		<div class="modal-body">
+		        		<div class="form-group">
+					    	<label>Ingrese Comentario</label>
+					    	<textArea class="form-control" id="comentario"></textArea>
+					  	</div>	
+					  	<div class="historico" style="height: 20em; overflow: auto">
+					    	<div class="form-group">Comentario</div>
+					    	<div class="form-group">Comentario</div>
+					    	<div class="form-group">Comentario</div>
+					    	<div class="form-group">Comentario</div>
+					    	<div class="form-group">Comentario</div>
+					    	<div class="form-group">Comentario</div>
+					    	<div class="form-group">Comentario</div>
+					    	<div class="form-group">Comentario</div>
+					    	<div class="form-group">Comentario</div>
+					    	<div class="form-group">Comentario</div>
+					    	<div class="form-group">Comentario</div>
+					    	<div class="form-group">Comentario</div>
+					    	<div class="form-group">Comentario</div>
+					    	<div class="form-group">Comentario</div>
+					  	</div>	
+		      		</div>
+		      		<div class="modal-footer">
+		      			<button type="button" class="btn btn-default guardar" data-dismiss="modal">Registrar Nuevo Comentario</button>
+		        		<button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+		      		</div>
+		    	</div><!-- /.modal-content -->
+		  	</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
 		<script>
 			$(document).ready(function(){
 				var FORM={
@@ -205,9 +311,44 @@
 				var utilidades = {
 					abreCargador:function(){$('#Cortina').attr('st','1')},
 					cierraCargador:function(){$('#Cortina').attr('st','0')},
-					log_: function(msg){$('#cuerpoActividades').append(msg);}
+					log_: function(msg){$('#modalLog .cuerpo').append(msg);}
 				}
 				utilidades.log_('Utilidades cargadas.<br>');
+				$('li.configurar').click(function(){
+					$('#modalConfiguracion').modal();
+					db.get('dataPersonal').then(function(doc) {
+						console.log(doc);
+						if(typeof(doc.cuerpo.dataUsu)=='undefined')return false;
+						$('#modalConfiguracion #nombre').val(doc.cuerpo.dataUsu.nomUsu);
+						$('#modalConfiguracion #idUsu').val(doc.cuerpo.dataUsu.idUsu);
+					}).then(function(response) {
+						utilidades.log_('dataP obtenida.<br>');
+					})
+					.catch(function (err) {alert(err);})
+				});
+				$('#modalConfiguracion .guardar').click(function(event){
+					event.preventDefault();
+					db.get('dataPersonal').then(function(doc) {
+						utilidades.log_('dataP obtenida.<br>');
+						if(doc.cuerpo==undefined)doc.cuerpo={};
+						doc.cuerpo.dataUsu={
+							nomUsu:$('#modalConfiguracion #nombre').val(),
+							idUsu:$('#modalConfiguracion #idUsu').val()
+						};
+					  	return db.put({
+							_id:'dataPersonal',
+							_rev: doc._rev,
+							cuerpo:doc.cuerpo
+						});
+					}).then(function(response) {
+						utilidades.log_('Se guarda data.<br>');
+						alert('Datos Guardados');
+					})
+					.catch(function (err) {alert(err);})
+				});
+				$('li.verLog').click(function(){
+					$('#modalLog').modal();
+				});
 				$('li.sincronizar').click(function(){
 					utilidades.abreCargador();
 					$.ajax({
@@ -269,22 +410,76 @@
 						$(this).html(
 							'<div class="opciones">'+
 							'<div class="opcion" accion="1">Tachar</div>'+
-							'<div class="opcion" accion="2">Adjuntar_Comentario</div>'+
-							'<div class="opcion" accion="3">Adjuntar_Nota</div>'+
+							'<div class="opcion" accion="2">Comentarios</div>'+
+							'<div class="opcion" accion="3">Nota</div>'+
+							'<div class="opcion" accion="4">Quitar_Tachado</div>'+
 							'</div>'
 						);
 					}else $('#cuerpoActividades .actividad .menuAct').html('');
 				});	
 				$("#cuerpoActividades").on("click",".actividad .menuAct .opciones .opcion[accion='1']", function() {
-					$(this).closest( ".actividad" ).attr('tachado','1');
-					db.get('dataAdicional').then(function(doc) {
-					  	return db.put({
-							_id:'dataUnad',
-							_rev: doc._rev,
-							cuerpo:data
-						});
-					}).then(function(response) {/*No registros*/})
-					.catch(function (err) {alert(err);});
+					var elementAct = this;
+					var elementActPadre = $(elementAct).closest( ".actividad" );
+					var idAct = $(elementActPadre).attr('id');
+					db.get('dataPersonal').then(function(doc) {
+						if(validaDataPersonal(doc)==false)return false;
+						doc=validaDataPersonal(doc);
+						var idUsu = doc.cuerpo.dataUsu.idUsu;
+						var nomUsu = doc.cuerpo.dataUsu.nomUsu;
+						db.get('dataAdicional').then(function(docAd) {
+							docAd = validaDataAdicional(docAd, idUsu,idAct);
+							docAd.cuerpo[idUsu].acts[idAct].tachado=1;
+							docAd.cuerpo[idUsu].acts[idAct].comentario.push({
+								fechaRegISO:moment().format('YYYY-MM-DD'),
+								fechaRegInteger:moment().format('YYYYMMDD'),
+								comen:nomUsu+' tacho la actividad.'	
+							});
+						  	return db.put({
+								_id:'dataAdicional',
+								_rev: docAd._rev,
+								cuerpo:docAd.cuerpo
+							});
+						}).then(function(response) {$(elementActPadre).attr('tachado','1');})
+						.catch(function (err) {alert(err);});
+					})
+					.catch(function (err) {alert(err);})
+				});
+				$("#cuerpoActividades").on("click",".actividad .menuAct .opciones .opcion[accion='2']", function() {
+					$('#modalComentario').modal();
+				});
+				$("#cuerpoActividades").on("click",".actividad .menuAct .opciones .opcion[accion='3']", function() {
+					$('#modalNota').modal();
+					var elementAct = this;
+					var elementActPadre = $(elementAct).closest( ".actividad" );
+					var notaTotal = elementActPadre.find('.notaTotal').text();
+					$('#modalNota .notaTotal').text(notaTotal);
+				});
+				$("#cuerpoActividades").on("click",".actividad .menuAct .opciones .opcion[accion='4']", function() {
+					var elementAct = this;
+					var elementActPadre = $(elementAct).closest( ".actividad" );
+					var idAct = $(elementActPadre).attr('id');
+					db.get('dataPersonal').then(function(doc) {
+						if(validaDataPersonal(doc)==false)return false;
+						doc=validaDataPersonal(doc);
+						var idUsu = doc.cuerpo.dataUsu.idUsu;
+						var nomUsu = doc.cuerpo.dataUsu.nomUsu;
+						db.get('dataAdicional').then(function(docAd) {
+							docAd = validaDataAdicional(docAd, idUsu, idAct);
+							docAd.cuerpo[idUsu].acts[idAct].tachado=0;
+							docAd.cuerpo[idUsu].acts[idAct].comentario.push({
+								fechaRegISO:moment().format('YYYY-MM-DD'),
+								fechaRegInteger:moment().format('YYYYMMDD'),
+								comen:nomUsu+' quito tachado a la actividad.'	
+							});
+						  	return db.put({
+								_id:'dataAdicional',
+								_rev: docAd._rev,
+								cuerpo:docAd.cuerpo
+							});
+						}).then(function(response) {$(elementActPadre).attr('tachado','0');})
+						.catch(function (err) {alert(err);});
+					})
+					.catch(function (err) {alert(err);})
 				});
 				utilidades.log_('Elementos programados.<br>');
 				function iniciarContadorTime(){
@@ -307,34 +502,70 @@
 						$('#cuerpoActividades .actividad[i="'+index+'"] .tiempoCierre').attr('cierre',cierre);
 					});
 				}
+				function validaDataAdicional(Data,idUsu,idAct){
+					if(Data.cuerpo==undefined)Data.cuerpo={};
+					if(Data.cuerpo[idUsu]==undefined)Data.cuerpo[idUsu]={};
+					if(Data.cuerpo[idUsu].acts==undefined)Data.cuerpo[idUsu].acts={};
+					if(Data.cuerpo[idUsu].acts[idAct]==undefined)Data.cuerpo[idUsu].acts[idAct]={};
+					if(Data.cuerpo[idUsu].acts[idAct].comentario==undefined)Data.cuerpo[idUsu].acts[idAct].comentario=[];
+					return Data;
+				}
+				function validaDataPersonal(Data, alert){
+					if(!alert)alert=1;
+					var e=0;
+					if(Data.cuerpo==undefined)Data.cuerpo={};
+					if(Data.cuerpo.dataUsu==undefined)Data.cuerpo.dataUsu={};
+					if(typeof(Data.cuerpo.dataUsu)=='undefined')e++;
+					else if($.trim(Data.cuerpo.dataUsu.idUsu)=='' || $.trim(Data.cuerpo.dataUsu.nomUsu)=='')e++;
+					if(e>0 && alert==1){
+						alert('Lo sentimos pero antes de poder registrar movimientos debes configurar la app, esto con el fin de un buen desempeño.');
+						$('li.configurar').click();
+						return false;
+					}
+					return Data;
+				}
 				function renderizarActividades(data){
-					$('#cuerpoActividades').html('');
-					moment.locale('es');
-					$.each(data, function( index, act ) {
-						curso=_.where(FORM.dataPrin.cursos, {unad40id: act.ofer18curso});
-						html='';
-						html+='<div class="col-sm-12 actividad" i='+index+' id='+act.ofer18curso+'-'+act.ofer18idactividad+'-'+act.ofer18fase+'>';
-						html+='<div class="col-sm-12 titulo">';
-						html+='<spam class="glyphicon glyphicon-th pull-right menuAct"></spam>';
-						html+='<spam class="pull-left">'+(index+1)+')</spam> '+curso[0].unad40nombre+' ('+act.ofer18curso+'A_'+act.ofer18per_aca+')<br>';
-						html+=act.ofer04nombre;
-						html+='</div>';
-						html+='<div class="col-sm-12">';
-						html+='Del '+moment(act.fecIniISO).format("dddd D MMMM  YYYY")+' al '+moment(act.fecFinISO).format("dddd D MMMM  YYYY");
-						html+='</div>';
-						html+='<div class="col-sm-offset-1 col-sm-10 col-xs-offset-1 col-xs-10 descripcion">';
-						html+=act.ofer04detalle;
-						html+='</div>';
-						html+='<div class="col-sm-12">';
-						html+='Calificacion 0(0%) de '+act.ofer18peso;
-						html+='</div>';
-						html+='<div class="col-sm-12 tiempoCierre" cierre="">';
-						html+='</div>';
-						html+='</div>';
-						$('#cuerpoActividades').append(html);
-					});
-					ajustarCronometros();
-					iniciarContadorTime();
+					db.get('dataPersonal').then(function(doc) {
+						if(validaDataPersonal(doc, 0)==true)return false;
+						doc=validaDataPersonal(doc, 0); 
+						var idUsu = doc.cuerpo.dataUsu.idUsu;
+						var nomUsu = doc.cuerpo.dataUsu.nomUsu;
+						db.get('dataAdicional').then(function(docAd) {
+							$('#cuerpoActividades').html('');
+							moment.locale('es');
+							$.each(data, function( index, act ) {
+								var idGenAct = act.ofer18curso+'-'+act.ofer18idactividad+'-'+act.ofer18fase;
+								docAd = validaDataAdicional(docAd, idUsu, idGenAct);
+								datActAdici = docAd.cuerpo[idUsu].acts[idGenAct];
+								curso=_.where(FORM.dataPrin.cursos, {unad40id: act.ofer18curso});
+								html='';
+								html+='<div class="col-sm-12 actividad" i='+index+' id='+idGenAct+' tachado='+datActAdici.tachado+'>';
+								html+='<div class="col-sm-12 titulo">';
+								html+='<spam class="glyphicon glyphicon-th pull-right menuAct"></spam>';
+								html+='<spam class="pull-left">'+(index+1)+')</spam> '+curso[0].unad40nombre+' ('+act.ofer18curso+'A_'+act.ofer18per_aca+')<br>';
+								html+=act.ofer04nombre;
+								html+='</div>';
+								html+='<div class="col-sm-12">';
+								html+='Del '+moment(act.fecIniISO).format("dddd D MMMM  YYYY")+' al '+moment(act.fecFinISO).format("dddd D MMMM  YYYY");
+								html+='</div>';
+								html+='<div class="col-sm-offset-1 col-sm-10 col-xs-offset-1 col-xs-10 descripcion">';
+								html+=act.ofer04detalle;
+								html+='</div>';
+								html+='<div class="col-sm-12">';
+								html+='Calificacion 0(0%) de <spam class="notaTotal">'+act.ofer18peso+'</spam>';
+								html+='</div>';
+								html+='<div class="col-sm-12 tiempoCierre" cierre="">';
+								html+='</div>';
+								html+='</div>';
+								$('#cuerpoActividades').append(html);
+							});
+							ajustarCronometros();
+							iniciarContadorTime();
+							$('li.actSinCerrar').click();
+						}).then(function(response) {})
+						.catch(function (err) {alert(err);});
+					}).then(function(response) {})
+					.catch(function (err) {alert(err);});
 				};
 				function cargarActividadesOrderFecha(){
 					FORM.dataPrin.actividades = _.sortBy(FORM.dataPrin.actividades, 'fecFinNumeric');
