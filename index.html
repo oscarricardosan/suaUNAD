@@ -16,6 +16,7 @@
   		<script type="text/javascript" src="js/indexeddbshim.min.js"></script>
   		<script type="text/javascript" src="js/pouchdb-4.0.0.min.js"></script>
   		<script type="text/javascript" src="js/momentJS_espanol.js"></script>
+  		<script type="text/javascript" src="js/accounting.min.js"></script>
   		<!-- Latest compiled and minified CSS -->
 		<link rel="stylesheet" href="bootstrap-3.3.5-dist/css/bootstrap.min.css">
 		<!-- Latest compiled and minified JavaScript -->
@@ -32,6 +33,9 @@
 			#cuerpoActividades .actividad[tachado="1"] .titulo{
 				display: inherit!important;
 				text-decoration: line-through;
+			}
+			#cuerpoActividades .actividad[tachado="1"] .calificacion{
+				display: inherit!important;
 			}
 			#cuerpoActividades .actividad .titulo{
 				background: #f3f3f3;
@@ -74,7 +78,7 @@
 			}
 			#cuerpoActividades .actividad .menuAct .opciones .opcion{
 				display: inherit!important;
-				padding: 6px 4px;
+				padding: 10px 17px;
 				border-bottom: 1px solid #ccc;
 			}
 			#cuerpoActividades .actividad .tiempoCierre[cierre="1"]{
@@ -131,11 +135,13 @@
 		    <!-- Collect the nav links, forms, and other content for toggling -->
 		    <div class="collapse navbar-collapse navbar-ex6-collapse">
 		    	<ul class="nav navbar-nav">
-		        	<li class="active sincronizar"><a href="#">Sincronizar</a></li>
-		        	<li class="active" onclick="$('#modalAyuda').modal();"><a href="#">Ayuda</a></li>
+		        	<li class="active sincronizar"><a href="#">Sincronizar con UNAD</a></li>
+		        	<li class="active enviarRecibir"><a href="#">Enviar/Recibir</a></li>
 		        	<li class="active" onclick="window.location.reload()"><a href="#">Recargar</a></li>
-		        	<li class="active verLog"><a href="#">Ver Log</a></li>
 		        	<li class="active configurar"><a href="#">Configurar</a></li>
+		        	<li class="active borrarBD"><a href="#">Limpiar BD</a></li>
+		        	<li class="active verLog"><a href="#">Ver Log</a></li>
+		        	<li class="active" onclick="$('#modalAyuda').modal();"><a href="#">Ayuda</a></li>
 		      	</ul>
 	    	</div><!-- /.navbar-collapse -->
   		</nav>
@@ -221,14 +227,17 @@
 	      			</div>
 		      		<div class="modal-body">
 		      			<p>
-		      				Los datos acá suministrados no serán suministrados y/o usados por tercesros. 
-							Son datos que habilitan la funcionalidad de almacenar los datos en un servidor 
-							y el nombre con el cual mostrar quien hizo un comentario o acci&oacute;n.
+		      				Los datos suministrados en ning&uacute;n momento ser&aacute;n entregados y/o usados por terceros. 
+							Son datos que habilitan la funcionalidad de almacenar comentarios, notas y dem&aacute;s.
 		      			</p>
 		        		<div class="form-group">
 					    	<label>Documento de Identidad (cedula, tarjeta de identidad, etc..)</label>
 					    	<input class="form-control" id="idUsu">
-					  	</div>	
+					  	</div>
+					  	<div class="form-group">
+					    	<label>Nombre de usuario UNAD</label>
+					    	<input class="form-control" id="nomUnad">
+					  	</div>		
 					  	<div class="form-group">
 					    	<label>Nombre para mostrar</label>
 					    	<input class="form-control" id="nombre">
@@ -252,7 +261,7 @@
 		      		<div class="modal-body">
 		        		<div class="form-group">
 					    	<label>Nota de la actividad</label>
-				    		<input class="form-control" id="notaAct">
+				    		<input class="form-control" id="nuevaNota">
 				    		<label>Sobre <span class="notaTotal"></span></label>
 					  	</div>	
 		      		</div>
@@ -275,22 +284,7 @@
 					    	<label>Ingrese Comentario</label>
 					    	<textArea class="form-control" id="comentario"></textArea>
 					  	</div>	
-					  	<div class="historico" style="height: 20em; overflow: auto">
-					    	<div class="form-group">Comentario</div>
-					    	<div class="form-group">Comentario</div>
-					    	<div class="form-group">Comentario</div>
-					    	<div class="form-group">Comentario</div>
-					    	<div class="form-group">Comentario</div>
-					    	<div class="form-group">Comentario</div>
-					    	<div class="form-group">Comentario</div>
-					    	<div class="form-group">Comentario</div>
-					    	<div class="form-group">Comentario</div>
-					    	<div class="form-group">Comentario</div>
-					    	<div class="form-group">Comentario</div>
-					    	<div class="form-group">Comentario</div>
-					    	<div class="form-group">Comentario</div>
-					    	<div class="form-group">Comentario</div>
-					  	</div>	
+					  	<div class="historico" style="height: 20em; overflow: auto"></div>	
 		      		</div>
 		      		<div class="modal-footer">
 		      			<button type="button" class="btn btn-default guardar" data-dismiss="modal">Registrar Nuevo Comentario</button>
@@ -307,7 +301,6 @@
 				var nameDB = 'SUA_UNAD';
 				var db = new PouchDB(nameDB);
 				var remoteCouch = false;
-				
 				var utilidades = {
 					abreCargador:function(){$('#Cortina').attr('st','1')},
 					cierraCargador:function(){$('#Cortina').attr('st','0')},
@@ -315,10 +308,12 @@
 				}
 				utilidades.log_('Utilidades cargadas.<br>');
 				$('li.configurar').click(function(){
+					utilidades.cierraCargador();
 					$('#modalConfiguracion').modal();
 					db.get('dataPersonal').then(function(doc) {
-						console.log(doc);
+						doc=validaDataPersonal(doc, 0);
 						if(typeof(doc.cuerpo.dataUsu)=='undefined')return false;
+						$('#modalConfiguracion #nomUnad').val(doc.cuerpo.dataUsu.nomUnad);
 						$('#modalConfiguracion #nombre').val(doc.cuerpo.dataUsu.nomUsu);
 						$('#modalConfiguracion #idUsu').val(doc.cuerpo.dataUsu.idUsu);
 					}).then(function(response) {
@@ -333,7 +328,8 @@
 						if(doc.cuerpo==undefined)doc.cuerpo={};
 						doc.cuerpo.dataUsu={
 							nomUsu:$('#modalConfiguracion #nombre').val(),
-							idUsu:$('#modalConfiguracion #idUsu').val()
+							idUsu:$('#modalConfiguracion #idUsu').val(),
+							nomUnad:$('#modalConfiguracion #nomUnad').val(),
 						};
 					  	return db.put({
 							_id:'dataPersonal',
@@ -343,53 +339,198 @@
 					}).then(function(response) {
 						utilidades.log_('Se guarda data.<br>');
 						alert('Datos Guardados');
+						cargarVariablesDesdeDB();
+						cargarActividadesOrderFecha();
 					})
 					.catch(function (err) {alert(err);})
+				});
+				$('#modalNota .guardar').click(function(event){
+					var idAct = FORM.idActActual;
+					var nuevaNota = $('#modalNota #nuevaNota').val();
+					var notaTot = $('#modalNota .notaTotal').text();
+					db.get('dataPersonal').then(function(doc) {
+						if(validaDataPersonal(doc)==false)return false;
+						doc=validaDataPersonal(doc);
+						var idUsu = doc.cuerpo.dataUsu.idUsu;
+						var nomUsu = doc.cuerpo.dataUsu.nomUsu;
+						db.get('dataAdicional').then(function(docAd) {
+							docAd = validaDataAdicional(docAd, idUsu,idAct);
+							docAd.cuerpo[idUsu].acts[idAct].notaObtenida=nuevaNota;
+							docAd.cuerpo[idUsu].acts[idAct].comentario.push({
+								fechaRegISO:moment().format('YYYY-MM-DD HH:mm'),
+								fechaRegInteger:moment().format('YYYYMMDDHHmm'),
+								comen:nomUsu+': nota actualizada a '+nuevaNota+'.'	
+							});
+						  	return db.put({
+								_id:'dataAdicional',
+								_rev: docAd._rev,
+								cuerpo:docAd.cuerpo
+							});
+						}).then(function(response) {
+							$('div.actividad[id="'+idAct+'"]').find('.nuevaNota')
+							.text(' '+nuevaNota+' ('+accounting.formatNumber((nuevaNota*100)/notaTot,2)+'%)');
+						})
+						.catch(function (err) {alert(err);});
+					})
+					.catch(function (err) {alert(err);})
+				});
+				$('#modalComentario .guardar').click(function(event){
+					var idAct = FORM.idActActual;
+					db.get('dataPersonal').then(function(doc) {
+						if(validaDataPersonal(doc)==false)return false;
+						doc=validaDataPersonal(doc);
+						var idUsu = doc.cuerpo.dataUsu.idUsu;
+						var nomUsu = doc.cuerpo.dataUsu.nomUsu;
+						db.get('dataAdicional').then(function(docAd) {
+							docAd = validaDataAdicional(docAd, idUsu,idAct);
+							docAd.cuerpo[idUsu].acts[idAct].comentario.push({
+								fechaRegISO:moment().format('YYYY-MM-DD HH:mm'),
+								fechaRegInteger:moment().format('YYYYMMDDHHmm'),
+								comen:nomUsu+': '+$('#modalComentario #comentario').val()	
+							});
+						  	return db.put({
+								_id:'dataAdicional',
+								_rev: docAd._rev,
+								cuerpo:docAd.cuerpo
+							});
+						}).then(function(response) {
+							$('#modalComentario #comentario').val('');
+							$("#cuerpoActividades .actividad .menuAct .opciones .opcion[accion='2']").click();
+						})
+						.catch(function (err) {alert(err);});
+					})
+					.catch(function (err) {alert(err);})
+				});
+				$('li.borrarBD').click(function(){
+					var r = confirm("Con esta accion va a eliminar la Base de Datos(BD).\nEsta seguro?, esta acción es irreversible.\nAceptar(Si)");
+					if (r == true) {
+					    db.destroy();
+					    alert('Base de datos eliminada');
+						window.location.reload();					    
+					} 
 				});
 				$('li.verLog').click(function(){
 					$('#modalLog').modal();
 				});
 				$('li.sincronizar').click(function(){
 					utilidades.abreCargador();
-					$.ajax({
-						url: 'http://savne.net/apps_web/SUA/dataActivitis.php',
-						dataType : 'jsonp',
-						data:{0:0},
-						timeout: 60000,
-						success: function(data) {
-							utilidades.log_('Data cargada<br>');
-							$.each(data[0][2], function( index, act ) {
-								if(act.diaini<10)act.diaini='0'+act.diaini;
-								if(act.diafin<10)act.diafin='0'+act.diafin;
-								if(act.mesini<10)act.mesini='0'+act.mesini;
-								if(act.mesfin<10)act.mesfin='0'+act.mesfin;
-								if(act.agnoini<10)act.agnoini='0'+act.agnoini;
-								if(act.agnofin<10)act.agnofin='0'+act.agnofin;
-							  	act.fecIni = act.diaini+'/'+act.mesini+'/'+act.agnoini;
-							  	act.fecFin = act.diafin+'/'+act.mesfin+'/'+act.agnofin;
-							  	act.fecIniISO = act.agnoini+'-'+act.mesini+'-'+act.diaini;
-							  	act.fecFinISO = act.agnofin+'-'+act.mesfin+'-'+act.diafin;
-							  	act.fecIniNumeric = parseInt(act.agnoini+''+act.mesini+''+act.diaini);
-							  	act.fecFinNumeric = parseInt(act.agnofin+''+act.mesfin+''+act.diafin);
-							});
-							db.get('dataUnad').then(function(doc) {
-							  	return db.put({
-									_id:'dataUnad',
-									_rev: doc._rev,
-									cuerpo:data
-								});
-							}).then(function(response) {
-								alert('Sincronizacion Exitosa.');cargarVariablesDesdeDB();
-								cargarActividadesOrderFecha();
-							})
-							.catch(function (err) {alert(err);});
+					var idAct = FORM.idActActual;
+					db.get('dataPersonal').then(function(doc) {
+						if(validaDataPersonal(doc)==false)return false;
+						doc=validaDataPersonal(doc);
+						var idUsu = doc.cuerpo.dataUsu.idUsu;
+						var nomUsu = doc.cuerpo.dataUsu.nomUsu;
+						var nomUnad = doc.cuerpo.dataUsu.nomUnad;
+						var claveUsu = prompt(nomUnad+" ingresa tu clave de la plataforma UNAD.");
+						if($.trim(nomUnad)=='' || $.trim(claveUsu)==''){
+							cargarVariablesDesdeDB();
+							cargarActividadesOrderFecha();
 							utilidades.cierraCargador();
-						},
-						error:function( jqXHR, textStatus ) {
-		  					alert( "Request failed: " + textStatus );
-		  					utilidades.cierraCargador();
+							return false;
 						}
-					});
+						$.ajax({
+							url: 'http://savne.net/apps_web/SUA/dataActivitis.php',
+							dataType : 'jsonp',
+							data:{nomUsu:nomUnad, claveUsu:claveUsu, tip:1},
+							timeout: 60000,
+							success: function(data) {
+								utilidades.log_('Data cargada<br>');
+								$.each(data[0][2], function( index, act ) {
+									if(act.diaini<10)act.diaini='0'+act.diaini;
+									if(act.diafin<10)act.diafin='0'+act.diafin;
+									if(act.mesini<10)act.mesini='0'+act.mesini;
+									if(act.mesfin<10)act.mesfin='0'+act.mesfin;
+									if(act.agnoini<10)act.agnoini='0'+act.agnoini;
+									if(act.agnofin<10)act.agnofin='0'+act.agnofin;
+								  	act.fecIni = act.diaini+'/'+act.mesini+'/'+act.agnoini;
+								  	act.fecFin = act.diafin+'/'+act.mesfin+'/'+act.agnofin;
+								  	act.fecIniISO = act.agnoini+'-'+act.mesini+'-'+act.diaini;
+								  	act.fecFinISO = act.agnofin+'-'+act.mesfin+'-'+act.diafin;
+								  	act.fecIniNumeric = parseInt(act.agnoini+''+act.mesini+''+act.diaini);
+								  	act.fecFinNumeric = parseInt(act.agnofin+''+act.mesfin+''+act.diafin);
+								});
+								db.get('dataUnad').then(function(doc) {
+								  	return db.put({
+										_id:'dataUnad',
+										_rev: doc._rev,
+										cuerpo:data
+									});
+								}).then(function(response) {
+									alert('Sincronizacion Exitosa.');cargarVariablesDesdeDB();
+									cargarActividadesOrderFecha();
+								})
+								.catch(function (err) {alert(err);});
+								utilidades.cierraCargador();
+							},
+							error:function( jqXHR, textStatus ) {
+			  					alert( "Request failed: " + textStatus );
+			  					utilidades.cierraCargador();
+							}
+						});
+					})
+					.catch(function (err) {alert(err);})
+				});
+				$('li.enviarRecibir').click(function(){
+					utilidades.abreCargador();
+					var idAct = FORM.idActActual;
+					db.get('dataPersonal').then(function(doc) {
+						if(validaDataPersonal(doc)==false)return false;
+						doc=validaDataPersonal(doc);
+						var idUsu = doc.cuerpo.dataUsu.idUsu;
+						var nomUsu = doc.cuerpo.dataUsu.nomUsu;
+						var nomUnad = doc.cuerpo.dataUsu.nomUnad;
+						var claveUsu = prompt(nomUnad+" ingresa tu clave de la plataforma UNAD.");
+						if($.trim(nomUnad)=='' || $.trim(claveUsu)==''){
+							cargarVariablesDesdeDB();
+							cargarActividadesOrderFecha();
+							utilidades.cierraCargador();
+							return false;
+						}
+						db.get('dataAdicional').then(function(docAd) {
+							docAd = validaDataAdicional(docAd, idUsu);
+							$.ajax({
+								url: 'http://savne.net/apps_web/SUA/dataActivitis.php',
+								dataType : 'jsonp',
+								data:{idUsu:idUsu, nomUsu:nomUnad, claveUsu:claveUsu, tip:2,data:docAd},
+								timeout: 60000,
+								success: function(data) {
+									utilidades.log_('Data cargada<br>');
+									try{
+										var miData = docAd.cuerpo[idUsu];
+									}catch(e){
+										miData=undefined;
+									}
+									docAd.cuerpo = data[0];
+									nActs=0;
+									for (var nActs in miData.acts){
+										nActs++; 
+									}
+									if(nActs>0)
+										docAd.cuerpo[idUsu]=miData;
+									newDataCuerpo = docAd.cuerpo;
+									db.get('dataAdicional').then(function(docAd) {
+									  	return db.put({
+											_id:'dataAdicional',
+											_rev: docAd._rev,
+											cuerpo:newDataCuerpo
+										});
+									}).then(function(response) {
+										cargarVariablesDesdeDB();
+										cargarActividadesOrderFecha();
+										utilidades.cierraCargador(); 
+										alert('Envio y Recibido de exitoso.');
+									})
+									.catch(function (err) {alert(err);});
+								},
+								error:function( jqXHR, textStatus ) {
+				  					alert( "Request failed: " + textStatus );
+				  					utilidades.cierraCargador();
+								}
+							});
+						})
+						.catch(function (err) {alert(err);});
+					})
+					.catch(function (err) {alert(err);})
 				});
 				$('li.actCerradas').click(function(){
 					$('#cuerpoActividades .actividad').css('display','none');
@@ -410,9 +551,9 @@
 						$(this).html(
 							'<div class="opciones">'+
 							'<div class="opcion" accion="1">Tachar</div>'+
+							'<div class="opcion" accion="4">Quitar_Tachado</div>'+
 							'<div class="opcion" accion="2">Comentarios</div>'+
 							'<div class="opcion" accion="3">Nota</div>'+
-							'<div class="opcion" accion="4">Quitar_Tachado</div>'+
 							'</div>'
 						);
 					}else $('#cuerpoActividades .actividad .menuAct').html('');
@@ -430,9 +571,9 @@
 							docAd = validaDataAdicional(docAd, idUsu,idAct);
 							docAd.cuerpo[idUsu].acts[idAct].tachado=1;
 							docAd.cuerpo[idUsu].acts[idAct].comentario.push({
-								fechaRegISO:moment().format('YYYY-MM-DD'),
-								fechaRegInteger:moment().format('YYYYMMDD'),
-								comen:nomUsu+' tacho la actividad.'	
+								fechaRegISO:moment().format('YYYY-MM-DD HH:mm'),
+								fechaRegInteger:moment().format('YYYYMMDDHHmm'),
+								comen:nomUsu+': tacho la actividad.'	
 							});
 						  	return db.put({
 								_id:'dataAdicional',
@@ -445,14 +586,54 @@
 					.catch(function (err) {alert(err);})
 				});
 				$("#cuerpoActividades").on("click",".actividad .menuAct .opciones .opcion[accion='2']", function() {
-					$('#modalComentario').modal();
-				});
-				$("#cuerpoActividades").on("click",".actividad .menuAct .opciones .opcion[accion='3']", function() {
-					$('#modalNota').modal();
 					var elementAct = this;
 					var elementActPadre = $(elementAct).closest( ".actividad" );
+					var idAct = $(elementActPadre).attr('id');
+					FORM.idActActual = idAct;
+					db.get('dataPersonal').then(function(doc) {
+						if(validaDataPersonal(doc)==false)return false;
+						doc=validaDataPersonal(doc);
+						var idUsu = doc.cuerpo.dataUsu.idUsu;
+						var nomUsu = doc.cuerpo.dataUsu.nomUsu;
+						db.get('dataAdicional').then(function(docAd) {
+							var comentarios=[];
+							for (var usuario in docAd.cuerpo){
+								docAd = validaDataAdicional(docAd, usuario, FORM.idActActual);
+								datActAdici = docAd.cuerpo[usuario].acts[FORM.idActActual];
+								$.each(datActAdici.comentario, function( index, comen ) {
+									comentarios.push(comen);
+								}); 
+							}
+							
+							comentarios = _.sortBy(comentarios, 'fechaRegInteger');
+							comentarios.reverse();
+							$('#modalComentario .historico').html('');
+							$.each(comentarios, function( index, comen ) {
+								$('#modalComentario .historico').append(
+									'<div class="form-group">'+
+									comen.comen+'<br>'+
+									'<spam style="font-size:0.8em;"><b>'+
+									moment(comen.fechaRegISO).format("dddd D MMMM  YYYY HH:mm")+
+									'</b></spam>'+
+									'</div>'
+								);
+							});
+							$('#modalComentario').modal();
+						}).then(function(response) {})
+						.catch(function (err) {alert(err);});
+					})
+					.catch(function (err) {alert(err);})
+				});
+				$("#cuerpoActividades").on("click",".actividad .menuAct .opciones .opcion[accion='3']", function() {
+					var elementAct = this;
+					var elementActPadre = $(elementAct).closest( ".actividad" );
+					var idAct = $(elementActPadre).attr('id');
+					FORM.idActActual = idAct;
 					var notaTotal = elementActPadre.find('.notaTotal').text();
+					var notaActual = elementActPadre.find('.nuevaNota').attr('val');
 					$('#modalNota .notaTotal').text(notaTotal);
+					$('#modalNota #nuevaNota').val(notaActual);
+					$('#modalNota').modal();
 				});
 				$("#cuerpoActividades").on("click",".actividad .menuAct .opciones .opcion[accion='4']", function() {
 					var elementAct = this;
@@ -503,21 +684,24 @@
 					});
 				}
 				function validaDataAdicional(Data,idUsu,idAct){
-					if(Data.cuerpo==undefined)Data.cuerpo={};
-					if(Data.cuerpo[idUsu]==undefined)Data.cuerpo[idUsu]={};
+					if(Data==undefined || Data==null)Data={};
+					if(Data.cuerpo==undefined || Data.cuerpo==null)Data.cuerpo={};
+					if(Data.cuerpo[idUsu]==undefined)Data.cuerpo[idUsu]={acts:{}};
 					if(Data.cuerpo[idUsu].acts==undefined)Data.cuerpo[idUsu].acts={};
-					if(Data.cuerpo[idUsu].acts[idAct]==undefined)Data.cuerpo[idUsu].acts[idAct]={};
-					if(Data.cuerpo[idUsu].acts[idAct].comentario==undefined)Data.cuerpo[idUsu].acts[idAct].comentario=[];
+					if(idAct!=undefined){
+						if(Data.cuerpo[idUsu].acts[idAct]==undefined)Data.cuerpo[idUsu].acts[idAct]={};
+						if(Data.cuerpo[idUsu].acts[idAct].comentario==undefined)Data.cuerpo[idUsu].acts[idAct].comentario=[];
+					}
 					return Data;
 				}
-				function validaDataPersonal(Data, alert){
-					if(!alert)alert=1;
+				function validaDataPersonal(Data, alert_){
+					if(alert_==undefined)alert_=1;
 					var e=0;
 					if(Data.cuerpo==undefined)Data.cuerpo={};
 					if(Data.cuerpo.dataUsu==undefined)Data.cuerpo.dataUsu={};
 					if(typeof(Data.cuerpo.dataUsu)=='undefined')e++;
 					else if($.trim(Data.cuerpo.dataUsu.idUsu)=='' || $.trim(Data.cuerpo.dataUsu.nomUsu)=='')e++;
-					if(e>0 && alert==1){
+					if(e>0 && alert_==1){
 						alert('Lo sentimos pero antes de poder registrar movimientos debes configurar la app, esto con el fin de un buen desempeño.');
 						$('li.configurar').click();
 						return false;
@@ -526,20 +710,29 @@
 				}
 				function renderizarActividades(data){
 					db.get('dataPersonal').then(function(doc) {
-						if(validaDataPersonal(doc, 0)==true)return false;
+						if(validaDataPersonal(doc, 1)==false)return false;
 						doc=validaDataPersonal(doc, 0); 
 						var idUsu = doc.cuerpo.dataUsu.idUsu;
 						var nomUsu = doc.cuerpo.dataUsu.nomUsu;
 						db.get('dataAdicional').then(function(docAd) {
 							$('#cuerpoActividades').html('');
 							moment.locale('es');
+							var i=0;
 							$.each(data, function( index, act ) {
 								var idGenAct = act.ofer18curso+'-'+act.ofer18idactividad+'-'+act.ofer18fase;
-								docAd = validaDataAdicional(docAd, idUsu, idGenAct);
-								datActAdici = docAd.cuerpo[idUsu].acts[idGenAct];
 								curso=_.where(FORM.dataPrin.cursos, {unad40id: act.ofer18curso});
+								var tachado=0;
+								var nota=0;
+								for (var usuario in docAd.cuerpo){
+									docAd = validaDataAdicional(docAd, usuario, idGenAct);
+    								datActAdici = docAd.cuerpo[usuario].acts[idGenAct];
+    								if(datActAdici.tachado!=undefined){
+    									tachado=datActAdici.tachado;
+    								}
+    								if(datActAdici.notaObtenida!=undefined)nota=datActAdici.notaObtenida;
+								}
 								html='';
-								html+='<div class="col-sm-12 actividad" i='+index+' id='+idGenAct+' tachado='+datActAdici.tachado+'>';
+								html+='<div class="col-sm-12 actividad" i='+index+' id='+idGenAct+' tachado='+tachado+'>';
 								html+='<div class="col-sm-12 titulo">';
 								html+='<spam class="glyphicon glyphicon-th pull-right menuAct"></spam>';
 								html+='<spam class="pull-left">'+(index+1)+')</spam> '+curso[0].unad40nombre+' ('+act.ofer18curso+'A_'+act.ofer18per_aca+')<br>';
@@ -551,14 +744,19 @@
 								html+='<div class="col-sm-offset-1 col-sm-10 col-xs-offset-1 col-xs-10 descripcion">';
 								html+=act.ofer04detalle;
 								html+='</div>';
-								html+='<div class="col-sm-12">';
-								html+='Calificacion 0(0%) de <spam class="notaTotal">'+act.ofer18peso+'</spam>';
+								html+='<div class="col-sm-12 calificacion">';
+								html+='Calificacion <spam class="nuevaNota" val="'+nota+'">'+nota+' ('+accounting.formatNumber((nota*100)/act.ofer18peso,2)+'%)</spam> de ';
+								html+='<spam class="notaTotal">'+act.ofer18peso+'</spam>';
 								html+='</div>';
 								html+='<div class="col-sm-12 tiempoCierre" cierre="">';
 								html+='</div>';
 								html+='</div>';
 								$('#cuerpoActividades').append(html);
+								i++;
 							});
+							if(i==0){
+								$('#cuerpoActividades').append('<h3>No se encuentran actividades. Vaya al menu superior Sincronizar con UNAD.</h3>');
+							}
 							ajustarCronometros();
 							iniciarContadorTime();
 							$('li.actSinCerrar').click();
@@ -587,9 +785,11 @@
 				}
 				function cargarVariablesDesdeDB(){
 					db.get('dataUnad').then(function(doc) {
-						FORM.dataPrin.cursos=doc.cuerpo[0][3];
-						FORM.dataPrin.actividades=doc.cuerpo[0][2];
-						cargarActividadesOrderFecha()
+						try{
+							FORM.dataPrin.cursos=doc.cuerpo[0][3];
+							FORM.dataPrin.actividades=doc.cuerpo[0][2];
+							cargarActividadesOrderFecha();
+						}catch(e){};
 					}).then(function(response) {utilidades.log_('Data Cargada a FORM.<br>');})
 						.catch(function (err) {alert(err);
 					})
