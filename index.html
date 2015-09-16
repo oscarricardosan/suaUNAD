@@ -137,10 +137,10 @@
 		    	<ul class="nav navbar-nav">
 		        	<li class="active sincronizar"><a href="#">Sincronizar con UNAD</a></li>
 		        	<li class="active enviarRecibir"><a href="#">Enviar/Recibir</a></li>
-		        	<li class="active" onclick="window.location.reload()"><a href="#">Recargar</a></li>
+		        	<li class="active" style="display: none;" onclick="window.location.reload()"><a href="#">Recargar</a></li>
 		        	<li class="active configurar"><a href="#">Configurar</a></li>
 		        	<li class="active borrarBD"><a href="#">Limpiar BD</a></li>
-		        	<li class="active verLog"><a href="#">Ver Log</a></li>
+		        	<li class="active verLog" style="display: none;"><a href="#">Ver Log</a></li>
 		        	<li class="active" onclick="$('#modalAyuda').modal();"><a href="#">Ayuda</a></li>
 		      	</ul>
 	    	</div><!-- /.navbar-collapse -->
@@ -723,13 +723,38 @@
 								curso=_.where(FORM.dataPrin.cursos, {unad40id: act.ofer18curso});
 								var tachado=0;
 								var nota=0;
+								
+								docAd = validaDataAdicional(docAd, idUsu, idGenAct);
+    							datActAdici = docAd.cuerpo[idUsu].acts[idGenAct];
+    							tachado=datActAdici.tachado;
+    							nota=datActAdici.notaObtenida;
+    							var comentarios=[];
 								for (var usuario in docAd.cuerpo){
-									docAd = validaDataAdicional(docAd, usuario, idGenAct);
-    								datActAdici = docAd.cuerpo[usuario].acts[idGenAct];
-    								if(datActAdici.tachado!=undefined){
-    									tachado=datActAdici.tachado;
-    								}
-    								if(datActAdici.notaObtenida!=undefined)nota=datActAdici.notaObtenida;
+									if(usuario != idUsu){
+										docAd = validaDataAdicional(docAd, usuario, idGenAct);
+	    								datActAdici = docAd.cuerpo[usuario].acts[idGenAct];
+	    								if(tachado==undefined)
+	    									if(datActAdici.tachado!=undefined)tachado=datActAdici.tachado;
+	    								if(nota!=undefined)
+	    									if(datActAdici.notaObtenida!=undefined)nota=datActAdici.notaObtenida;
+	    							}	
+	    							$.each(datActAdici.comentario, function( index, comen ) {
+										comentarios.push(comen);
+									}); 	
+								}
+								comentarios = _.sortBy(comentarios, 'fechaRegInteger');
+								comentarios.reverse();
+								var comen = comentarios[0];
+								console.log(comentarios[0]);
+								var ultComen='';
+								if(comen!=undefined){
+									ultComen=
+									'<div class="col-sm-12" style="border-top:1px solid #ccc;border-bottom:1px solid #ccc;">'+
+									'<spam style="font-size:0.8em;"><b>'+
+									moment(comen.fechaRegISO).format("dddd D MMMM  YYYY HH:mm")+
+									'</b></spam> '+
+									comen.comen+
+									'</div>';
 								}
 								html='';
 								html+='<div class="col-sm-12 actividad" i='+index+' id='+idGenAct+' tachado='+tachado+'>';
@@ -748,6 +773,7 @@
 								html+='Calificacion <spam class="nuevaNota" val="'+nota+'">'+nota+' ('+accounting.formatNumber((nota*100)/act.ofer18peso,2)+'%)</spam> de ';
 								html+='<spam class="notaTotal">'+act.ofer18peso+'</spam>';
 								html+='</div>';
+								html+=ultComen;
 								html+='<div class="col-sm-12 tiempoCierre" cierre="">';
 								html+='</div>';
 								html+='</div>';
@@ -796,8 +822,25 @@
 				}
 				function primerIngreso(){
 					alert("Bienvenido a SUA UNAD. \nEs tu primer ingreso la app se sincronizara automaticamente.");
-					$('#modalAyuda').modal();
-					$('li.sincronizar').click();
+					db.get('dataPersonal').then(function(doc) {
+						if(doc.cuerpo==undefined)doc.cuerpo={};
+						var nomUsu = prompt("Ingresa tu nombre y apellido.");
+						var nomUnad = prompt("Ingresa tu nombre de usuario UNAD.");
+						var idUsu = prompt("Ingresa el documento de identidad de "+nomUsu);
+						doc.cuerpo.dataUsu={
+							nomUsu:nomUsu,
+							idUsu:idUsu,
+							nomUnad:nomUnad
+						};
+					  	return db.put({
+							_id:'dataPersonal',
+							_rev: doc._rev,
+							cuerpo:doc.cuerpo
+						});
+					}).then(function(response) {
+						$('li.sincronizar').click();
+					})
+					.catch(function (err) {alert(err);})
 				}
 				$('#modalAyuda').on('shown.bs.modal', function () {
 					$('#myInput').focus();
