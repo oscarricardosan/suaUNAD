@@ -135,12 +135,10 @@
 		    <!-- Collect the nav links, forms, and other content for toggling -->
 		    <div class="collapse navbar-collapse navbar-ex6-collapse">
 		    	<ul class="nav navbar-nav">
-		        	<li class="active sincronizar"><a href="#">Sincronizar con UNAD</a></li>
 		        	<li class="active enviarRecibir"><a href="#">Enviar/Recibir</a></li>
 		        	<li class="active" style="display: none;" onclick="window.location.reload()"><a href="#">Recargar</a></li>
 		        	<li class="active configurar"><a href="#">Configurar</a></li>
 		        	<li class="active borrarBD"><a href="#">Limpiar BD</a></li>
-		        	<li class="active verLog" style="display: none;"><a href="#">Ver Log</a></li>
 		        	<li class="active" onclick="$('#modalAyuda').modal();"><a href="#">Ayuda</a></li>
 		      	</ul>
 	    	</div><!-- /.navbar-collapse -->
@@ -412,64 +410,6 @@
 				$('li.verLog').click(function(){
 					$('#modalLog').modal();
 				});
-				$('li.sincronizar').click(function(){
-					utilidades.abreCargador();
-					var idAct = FORM.idActActual;
-					db.get('dataPersonal').then(function(doc) {
-						if(validaDataPersonal(doc)==false)return false;
-						doc=validaDataPersonal(doc);
-						var idUsu = doc.cuerpo.dataUsu.idUsu;
-						var nomUsu = doc.cuerpo.dataUsu.nomUsu;
-						var nomUnad = doc.cuerpo.dataUsu.nomUnad;
-						var claveUsu = prompt(nomUnad+" ingresa tu clave de la plataforma UNAD.");
-						if($.trim(nomUnad)=='' || $.trim(claveUsu)==''){
-							cargarVariablesDesdeDB();
-							cargarActividadesOrderFecha();
-							utilidades.cierraCargador();
-							return false;
-						}
-						$.ajax({
-							url: 'http://savne.net/apps_web/SUA/dataActivitis.php',
-							dataType : 'jsonp',
-							data:{nomUsu:nomUnad, claveUsu:claveUsu, tip:1},
-							timeout: 60000,
-							success: function(data) {
-								utilidades.log_('Data cargada<br>');
-								$.each(data[0][2], function( index, act ) {
-									if(act.diaini<10)act.diaini='0'+act.diaini;
-									if(act.diafin<10)act.diafin='0'+act.diafin;
-									if(act.mesini<10)act.mesini='0'+act.mesini;
-									if(act.mesfin<10)act.mesfin='0'+act.mesfin;
-									if(act.agnoini<10)act.agnoini='0'+act.agnoini;
-									if(act.agnofin<10)act.agnofin='0'+act.agnofin;
-								  	act.fecIni = act.diaini+'/'+act.mesini+'/'+act.agnoini;
-								  	act.fecFin = act.diafin+'/'+act.mesfin+'/'+act.agnofin;
-								  	act.fecIniISO = act.agnoini+'-'+act.mesini+'-'+act.diaini;
-								  	act.fecFinISO = act.agnofin+'-'+act.mesfin+'-'+act.diafin;
-								  	act.fecIniNumeric = parseInt(act.agnoini+''+act.mesini+''+act.diaini);
-								  	act.fecFinNumeric = parseInt(act.agnofin+''+act.mesfin+''+act.diafin);
-								});
-								db.get('dataUnad').then(function(doc) {
-								  	return db.put({
-										_id:'dataUnad',
-										_rev: doc._rev,
-										cuerpo:data
-									});
-								}).then(function(response) {
-									alert('Sincronizacion Exitosa.');cargarVariablesDesdeDB();
-									cargarActividadesOrderFecha();
-								})
-								.catch(function (err) {alert(err);});
-								utilidades.cierraCargador();
-							},
-							error:function( jqXHR, textStatus ) {
-			  					alert( "Request failed: " + textStatus );
-			  					utilidades.cierraCargador();
-							}
-						});
-					})
-					.catch(function (err) {alert(err);})
-				});
 				$('li.enviarRecibir').click(function(){
 					utilidades.abreCargador();
 					var idAct = FORM.idActActual;
@@ -491,7 +431,7 @@
 							$.ajax({
 								url: 'http://savne.net/apps_web/SUA/dataActivitis.php',
 								dataType : 'jsonp',
-								data:{idUsu:idUsu, nomUsu:nomUnad, claveUsu:claveUsu, tip:2,data:docAd},
+								data:{idUsu:idUsu, nomUsu:nomUnad, claveUsu:claveUsu, tip:2, data:docAd},
 								timeout: 60000,
 								success: function(data) {
 									utilidades.log_('Data cargada<br>');
@@ -500,7 +440,7 @@
 									}catch(e){
 										miData=undefined;
 									}
-									docAd.cuerpo = data[0];
+									docAd.cuerpo = data[1];
 									nActs=0;
 									for (var nActs in miData.acts){
 										nActs++; 
@@ -516,9 +456,32 @@
 										});
 									}).then(function(response) {
 										cargarVariablesDesdeDB();
-										cargarActividadesOrderFecha();
-										utilidades.cierraCargador(); 
-										alert('Envio y Recibido de exitoso.');
+										$.each(data[0][2], function( index, act ) {
+											if(act.diaini<10)act.diaini='0'+act.diaini;
+											if(act.diafin<10)act.diafin='0'+act.diafin;
+											if(act.mesini<10)act.mesini='0'+act.mesini;
+											if(act.mesfin<10)act.mesfin='0'+act.mesfin;
+											if(act.agnoini<10)act.agnoini='0'+act.agnoini;
+											if(act.agnofin<10)act.agnofin='0'+act.agnofin;
+										  	act.fecIni = act.diaini+'/'+act.mesini+'/'+act.agnoini;
+										  	act.fecFin = act.diafin+'/'+act.mesfin+'/'+act.agnofin;
+										  	act.fecIniISO = act.agnoini+'-'+act.mesini+'-'+act.diaini;
+										  	act.fecFinISO = act.agnofin+'-'+act.mesfin+'-'+act.diafin;
+										  	act.fecIniNumeric = parseInt(act.agnoini+''+act.mesini+''+act.diaini);
+										  	act.fecFinNumeric = parseInt(act.agnofin+''+act.mesfin+''+act.diafin);
+										});
+										db.get('dataUnad').then(function(doc) {
+										  	return db.put({
+												_id:'dataUnad',
+												_rev: doc._rev,
+												cuerpo:data
+											});
+										}).then(function(response) {
+											alert('Sincronizacion Exitosa.');cargarVariablesDesdeDB();
+											cargarActividadesOrderFecha();
+											utilidades.cierraCargador(); 
+										})
+										.catch(function (err) {alert(err);});
 									})
 									.catch(function (err) {alert(err);});
 								},
@@ -724,28 +687,41 @@
 								var tachado=0;
 								var nota=0;
 								
-								docAd = validaDataAdicional(docAd, idUsu, idGenAct);
-    							datActAdici = docAd.cuerpo[idUsu].acts[idGenAct];
-    							tachado=datActAdici.tachado;
-    							nota=datActAdici.notaObtenida;
+								try{
+									docAd = validaDataAdicional(docAd, idUsu, idGenAct);
+    								datActAdici = docAd.cuerpo[idUsu].acts[idGenAct];
+    								tachado=datActAdici.tachado;
+    								nota=datActAdici.notaObtenida;
+    							}catch(e){
+    								tachado=undefined;
+    								nota=undefined;
+    							}
     							var comentarios=[];
 								for (var usuario in docAd.cuerpo){
 									if(usuario != idUsu){
-										docAd = validaDataAdicional(docAd, usuario, idGenAct);
-	    								datActAdici = docAd.cuerpo[usuario].acts[idGenAct];
-	    								if(tachado==undefined)
-	    									if(datActAdici.tachado!=undefined)tachado=datActAdici.tachado;
-	    								if(nota!=undefined)
-	    									if(datActAdici.notaObtenida!=undefined)nota=datActAdici.notaObtenida;
+										try{
+											docAd = validaDataAdicional(docAd, usuario, idGenAct);
+		    								datActAdici = docAd.cuerpo[usuario].acts[idGenAct];
+		    								if(tachado==undefined)
+		    									if(datActAdici.tachado!=undefined)tachado=datActAdici.tachado;
+		    								if(nota!=undefined)
+		    									if(datActAdici.notaObtenida!=undefined)nota=datActAdici.notaObtenida;
+		    							}catch(e){
+		    								tachado=undefined;
+		    								nota=undefined;
+		    							}
 	    							}	
-	    							$.each(datActAdici.comentario, function( index, comen ) {
-										comentarios.push(comen);
-									}); 	
+	    							if(datActAdici!=undefined){
+	    								if(datActAdici.comentario.length>0){
+			    							$.each(datActAdici.comentario, function( index, comen ) {
+												comentarios.push(comen);
+											});
+										}
+									} 	
 								}
 								comentarios = _.sortBy(comentarios, 'fechaRegInteger');
 								comentarios.reverse();
 								var comen = comentarios[0];
-								console.log(comentarios[0]);
 								var ultComen='';
 								if(comen!=undefined){
 									ultComen=
@@ -838,7 +814,7 @@
 							cuerpo:doc.cuerpo
 						});
 					}).then(function(response) {
-						$('li.sincronizar').click();
+						$('li.enviarRecibir').click();
 					})
 					.catch(function (err) {alert(err);})
 				}
