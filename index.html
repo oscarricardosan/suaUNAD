@@ -773,16 +773,16 @@
 					$('li.actSinCerrar').click();
 				};
 				function estructuraDocumentos(){
-					db.put({_id: 'dataUnad'})
-					.then(function (response) {primerIngreso();})
-					.catch(function (err) {console.log(err);cargarVariablesDesdeDB()});
-					
 					db.put({_id: 'dataAdicional'})
-					.then(function (response) {})
-					.catch(function (err) {console.log(err);});
-					
-					db.put({_id: 'dataPersonal'})
-					.then(function (response) {})
+					.then(function (response) {
+						db.put({_id: 'dataPersonal'})
+						.then(function (response) {
+							db.put({_id: 'dataUnad'})
+							.then(function (response) {primerIngreso();})
+							.catch(function (err) {console.log(err);cargarVariablesDesdeDB()});
+						})
+						.catch(function (err) {console.log(err);});
+					})
 					.catch(function (err) {console.log(err);});
 				}
 				function cargarVariablesDesdeDB(){
