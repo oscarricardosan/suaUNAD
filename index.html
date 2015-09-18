@@ -594,6 +594,8 @@
 					FORM.idActActual = idAct;
 					var notaTotal = elementActPadre.find('.notaTotal').text();
 					var notaActual = elementActPadre.find('.nuevaNota').attr('val');
+					if(notaActual==undefined)notaActual=0;
+					if(notaTotal==undefined)notaTotal=0;
 					$('#modalNota .notaTotal').text(notaTotal);
 					$('#modalNota #nuevaNota').val(notaActual);
 					$('#modalNota').modal();
