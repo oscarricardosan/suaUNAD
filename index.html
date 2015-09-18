@@ -135,7 +135,7 @@
 		    <!-- Collect the nav links, forms, and other content for toggling -->
 		    <div class="collapse navbar-collapse navbar-ex6-collapse">
 		    	<ul class="nav navbar-nav">
-		        	<li class="active enviarRecibir"><a href="#">Enviar/Recibir</a></li>
+		        	<li class="active enviarRecibir"><a href="#">Sincronizar</a></li>
 		        	<li class="active" style="display: none;" onclick="window.location.reload()"><a href="#">Recargar</a></li>
 		        	<li class="active configurar"><a href="#">Configurar</a></li>
 		        	<li class="active borrarBD"><a href="#">Limpiar BD</a></li>
@@ -781,9 +781,9 @@
 							.then(function (response) {primerIngreso();})
 							.catch(function (err) {console.log(err);cargarVariablesDesdeDB()});
 						})
-						.catch(function (err) {console.log(err);});
+						.catch(function (err) {console.log(err);cargarVariablesDesdeDB()});
 					})
-					.catch(function (err) {console.log(err);});
+					.catch(function (err) {console.log(err);cargarVariablesDesdeDB()});
 				}
 				function cargarVariablesDesdeDB(){
 					db.get('dataUnad').then(function(doc) {
