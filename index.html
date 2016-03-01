@@ -34,9 +34,7 @@
 				display: inherit!important;
 				text-decoration: line-through;
 			}
-			#cuerpoActividades .actividad[tachado="1"] .calificacion,
-			#cuerpoActividades .actividad[tachado="1"] .ultComen, 
-			#cuerpoActividades .actividad[tachado="1"] .tiempoCierre{
+			#cuerpoActividades .actividad[tachado="1"] .calificacion{
 				display: inherit!important;
 			}
 			#cuerpoActividades .actividad .titulo{
@@ -137,7 +135,7 @@
 		    <!-- Collect the nav links, forms, and other content for toggling -->
 		    <div class="collapse navbar-collapse navbar-ex6-collapse">
 		    	<ul class="nav navbar-nav">
-		        	<li class="active enviarRecibir"><a href="#">Sincronizar</a></li>
+		        	<li class="active enviarRecibir"><a href="#">Enviar/Recibir</a></li>
 		        	<li class="active" style="display: none;" onclick="window.location.reload()"><a href="#">Recargar</a></li>
 		        	<li class="active configurar"><a href="#">Configurar</a></li>
 		        	<li class="active borrarBD"><a href="#">Limpiar BD</a></li>
@@ -230,7 +228,7 @@
 		      				Los datos suministrados en ning&uacute;n momento ser&aacute;n entregados y/o usados por terceros. 
 							Son datos que habilitan la funcionalidad de almacenar comentarios, notas y dem&aacute;s.
 		      			</p>
-		        		<div class="form-group">
+						<div class="form-group" style="display: none">
 					    	<label>Documento de Identidad (cedula, tarjeta de identidad, etc..)</label>
 					    	<input class="form-control" id="idUsu">
 					  	</div>
@@ -238,7 +236,7 @@
 					    	<label>Nombre de usuario UNAD</label>
 					    	<input class="form-control" id="nomUnad">
 					  	</div>		
-					  	<div class="form-group">
+					  	<div class="form-group" style="display: none">
 					    	<label>Nombre para mostrar</label>
 					    	<input class="form-control" id="nombre">
 					  	</div>	
@@ -293,7 +291,7 @@
 		    	</div><!-- /.modal-content -->
 		  	</div><!-- /.modal-dialog -->
 		</div><!-- /.modal -->
-		<script type="">
+		<script>
 			$(document).ready(function(){
 				var FORM={
 					dataPrin:{}
@@ -367,7 +365,8 @@
 								cuerpo:docAd.cuerpo
 							});
 						}).then(function(response) {
-							cargarVariablesDesdeDB();
+							$('div.actividad[id="'+idAct+'"]').find('.nuevaNota')
+							.text(' '+nuevaNota+' ('+accounting.formatNumber((nuevaNota*100)/notaTot,2)+'%)');
 						})
 						.catch(function (err) {alert(err);});
 					})
@@ -395,7 +394,6 @@
 						}).then(function(response) {
 							$('#modalComentario #comentario').val('');
 							$("#cuerpoActividades .actividad .menuAct .opciones .opcion[accion='2']").click();
-							cargarVariablesDesdeDB();
 						})
 						.catch(function (err) {alert(err);});
 					})
@@ -421,76 +419,60 @@
 						var idUsu = doc.cuerpo.dataUsu.idUsu;
 						var nomUsu = doc.cuerpo.dataUsu.nomUsu;
 						var nomUnad = doc.cuerpo.dataUsu.nomUnad;
+						var url ="https://savne.net/sua/actividades/"+nomUnad+"";
 						var claveUsu = prompt(nomUnad+" ingresa tu clave de la plataforma UNAD.");
+						var miCahe = claveUsu;
+						var lenCl = claveUsu.length;
+						var c1 = Math.floor(Math.random() * lenCl-2) ;
+						if(c1 <3 )c1=3;
+						url =
+							url+'/'+miCahe.substr(c1,lenCl)+
+							'/'+(
+							(moment().format('YYYY')*1)+(moment().format('MM')*1)+(moment().format('DD')*1)
+							)*Math.floor(Math.random() * 10000)
+						;
 						if($.trim(nomUnad)=='' || $.trim(claveUsu)==''){
 							cargarVariablesDesdeDB();
 							cargarActividadesOrderFecha();
 							utilidades.cierraCargador();
 							return false;
 						}
+						url = url+'/'+miCahe.substr(0,c1);
 						db.get('dataAdicional').then(function(docAd) {
 							docAd = validaDataAdicional(docAd, idUsu);
-							$.ajax({
-								url: 'http://savne.net/apps_web/SUA/dataActivitis.php',
-								dataType : 'jsonp',
-								data:{idUsu:idUsu, nomUsu:nomUnad, claveUsu:claveUsu, tip:2, data:docAd},
-								timeout: 60000,
-								success: function(data) {
-									utilidades.log_('Data cargada<br>');
-									try{
-										var miData = docAd.cuerpo[idUsu];
-									}catch(e){
-										miData=undefined;
-									}
-									docAd.cuerpo = data[1];
-									nActs=0;
-									for (var nActs in miData.acts){
-										nActs++; 
-									}
-									if(nActs>0)
-										docAd.cuerpo[idUsu]=miData;
-									newDataCuerpo = docAd.cuerpo;
-									db.get('dataAdicional').then(function(docAd) {
-									  	return db.put({
-											_id:'dataAdicional',
-											_rev: docAd._rev,
-											cuerpo:newDataCuerpo
-										});
-									}).then(function(response) {
-										cargarVariablesDesdeDB();
-										$.each(data[0][2], function( index, act ) {
-											if(act.diaini<10)act.diaini='0'+act.diaini;
-											if(act.diafin<10)act.diafin='0'+act.diafin;
-											if(act.mesini<10)act.mesini='0'+act.mesini;
-											if(act.mesfin<10)act.mesfin='0'+act.mesfin;
-											if(act.agnoini<10)act.agnoini='0'+act.agnoini;
-											if(act.agnofin<10)act.agnofin='0'+act.agnofin;
-										  	act.fecIni = act.diaini+'/'+act.mesini+'/'+act.agnoini;
-										  	act.fecFin = act.diafin+'/'+act.mesfin+'/'+act.agnofin;
-										  	act.fecIniISO = act.agnoini+'-'+act.mesini+'-'+act.diaini;
-										  	act.fecFinISO = act.agnofin+'-'+act.mesfin+'-'+act.diafin;
-										  	act.fecIniNumeric = parseInt(act.agnoini+''+act.mesini+''+act.diaini);
-										  	act.fecFinNumeric = parseInt(act.agnofin+''+act.mesfin+''+act.diafin);
-										});
-										db.get('dataUnad').then(function(doc) {
-										  	return db.put({
-												_id:'dataUnad',
-												_rev: doc._rev,
-												cuerpo:data
-											});
-										}).then(function(response) {
-											alert('Sincronizacion Exitosa.');cargarVariablesDesdeDB();
-											cargarActividadesOrderFecha();
-											utilidades.cierraCargador(); 
-										})
-										.catch(function (err) {alert(err);});
-									})
-									.catch(function (err) {alert(err);});
-								},
-								error:function( jqXHR, textStatus ) {
-				  					alert( "Request failed: " + textStatus );
-				  					utilidades.cierraCargador();
-								}
+							$.getJSON( url+'.json', function(data) {
+								utilidades.log_('Data cargada<br>');
+								cargarVariablesDesdeDB();
+								$.each(data.actividades[2], function( index, act ) {
+									if(act.diaini<10)act.diaini='0'+act.diaini;
+									if(act.diafin<10)act.diafin='0'+act.diafin;
+									if(act.mesini<10)act.mesini='0'+act.mesini;
+									if(act.mesfin<10)act.mesfin='0'+act.mesfin;
+									if(act.agnoini<10)act.agnoini='0'+act.agnoini;
+									if(act.agnofin<10)act.agnofin='0'+act.agnofin;
+									act.fecIni = act.diaini+'/'+act.mesini+'/'+act.agnoini;
+									act.fecFin = act.diafin+'/'+act.mesfin+'/'+act.agnofin;
+									act.fecIniISO = act.agnoini+'-'+act.mesini+'-'+act.diaini;
+									act.fecFinISO = act.agnofin+'-'+act.mesfin+'-'+act.diafin;
+									act.fecIniNumeric = parseInt(act.agnoini+''+act.mesini+''+act.diaini);
+									act.fecFinNumeric = parseInt(act.agnofin+''+act.mesfin+''+act.diafin);
+								});
+								db.get('dataUnad').then(function(doc) {
+									return db.put({
+										_id:'dataUnad',
+										_rev: doc._rev,
+										cuerpo:data
+									});
+								}).then(function(response) {
+									alert('Sincronizacion Exitosa.');cargarVariablesDesdeDB();
+									cargarActividadesOrderFecha();
+									utilidades.cierraCargador();
+								})
+								.catch(function (err) {alert(err);});
+							})
+							.fail(function() {
+								alert( "Request failed: " + textStatus );
+								utilidades.cierraCargador();
 							});
 						})
 						.catch(function (err) {alert(err);});
@@ -545,10 +527,7 @@
 								_rev: docAd._rev,
 								cuerpo:docAd.cuerpo
 							});
-						}).then(function(response) {
-							$(elementActPadre).attr('tachado','1');
-							cargarVariablesDesdeDB();
-						})
+						}).then(function(response) {$(elementActPadre).attr('tachado','1');})
 						.catch(function (err) {alert(err);});
 					})
 					.catch(function (err) {alert(err);})
@@ -566,13 +545,11 @@
 						db.get('dataAdicional').then(function(docAd) {
 							var comentarios=[];
 							for (var usuario in docAd.cuerpo){
-								if(usuario != 0){
-									docAd = validaDataAdicional(docAd, usuario, FORM.idActActual);
-									datActAdici = docAd.cuerpo[usuario].acts[FORM.idActActual];
-									$.each(datActAdici.comentario, function( index, comen ) {
-										comentarios.push(comen);
-									});
-								} 
+								docAd = validaDataAdicional(docAd, usuario, FORM.idActActual);
+								datActAdici = docAd.cuerpo[usuario].acts[FORM.idActActual];
+								$.each(datActAdici.comentario, function( index, comen ) {
+									comentarios.push(comen);
+								}); 
 							}
 							
 							comentarios = _.sortBy(comentarios, 'fechaRegInteger');
@@ -601,9 +578,6 @@
 					FORM.idActActual = idAct;
 					var notaTotal = elementActPadre.find('.notaTotal').text();
 					var notaActual = elementActPadre.find('.nuevaNota').attr('val');
-					console.log(notaActual);
-					if(notaActual==undefined)notaActual=0;
-					if(notaTotal==undefined)notaTotal=0;
 					$('#modalNota .notaTotal').text(notaTotal);
 					$('#modalNota #nuevaNota').val(notaActual);
 					$('#modalNota').modal();
@@ -620,22 +594,17 @@
 						db.get('dataAdicional').then(function(docAd) {
 							docAd = validaDataAdicional(docAd, idUsu, idAct);
 							docAd.cuerpo[idUsu].acts[idAct].tachado=0;
-							
-							
 							docAd.cuerpo[idUsu].acts[idAct].comentario.push({
-								fechaRegISO:moment().format('YYYY-MM-DD HH:mm'),
-								fechaRegInteger:moment().format('YYYYMMDDHHmm'),
-								comen:nomUsu+': quito tachado la actividad.'	
+								fechaRegISO:moment().format('YYYY-MM-DD'),
+								fechaRegInteger:moment().format('YYYYMMDD'),
+								comen:nomUsu+' quito tachado a la actividad.'	
 							});
 						  	return db.put({
 								_id:'dataAdicional',
 								_rev: docAd._rev,
 								cuerpo:docAd.cuerpo
 							});
-						}).then(function(response) {
-							$(elementActPadre).attr('tachado','0');
-							cargarVariablesDesdeDB();
-						})
+						}).then(function(response) {$(elementActPadre).attr('tachado','0');})
 						.catch(function (err) {alert(err);});
 					})
 					.catch(function (err) {alert(err);})
@@ -678,11 +647,10 @@
 					if(Data.cuerpo==undefined)Data.cuerpo={};
 					if(Data.cuerpo.dataUsu==undefined)Data.cuerpo.dataUsu={};
 					if(typeof(Data.cuerpo.dataUsu)=='undefined')e++;
-					else if($.trim(Data.cuerpo.dataUsu.idUsu)=='' || $.trim(Data.cuerpo.dataUsu.nomUsu)=='')e++;
+					else if($.trim(Data.cuerpo.dataUsu.nomUnad)=='')e++;
 					if(e>0 && alert_==1){
 						alert('Lo sentimos pero antes de poder registrar movimientos debes configurar la app, esto con el fin de un buen desempeño.');
 						$('li.configurar').click();
-						return false;
 					}
 					return Data;
 				}
@@ -713,7 +681,7 @@
     							}
     							var comentarios=[];
 								for (var usuario in docAd.cuerpo){
-									if(usuario != idUsu && usuario!=0){
+									if(usuario != idUsu){
 										try{
 											docAd = validaDataAdicional(docAd, usuario, idGenAct);
 		    								datActAdici = docAd.cuerpo[usuario].acts[idGenAct];
@@ -734,15 +702,13 @@
 										}
 									} 	
 								}
-								if(tachado==undefined)tachado==0;
-								if(nota==undefined)nota=0;
 								comentarios = _.sortBy(comentarios, 'fechaRegInteger');
 								comentarios.reverse();
 								var comen = comentarios[0];
 								var ultComen='';
 								if(comen!=undefined){
 									ultComen=
-									'<div class="col-sm-12 ultComen" style="border-top:1px solid #ccc;border-bottom:1px solid #ccc;">'+
+									'<div class="col-sm-12" style="border-top:1px solid #ccc;border-bottom:1px solid #ccc;">'+
 									'<spam style="font-size:0.8em;"><b>'+
 									moment(comen.fechaRegISO).format("dddd D MMMM  YYYY HH:mm")+
 									'</b></spam> '+
@@ -763,6 +729,7 @@
 								html+=act.ofer04detalle;
 								html+='</div>';
 								html+='<div class="col-sm-12 calificacion">';
+								if(nota==undefined)nota=0;
 								html+='Calificacion <spam class="nuevaNota" val="'+nota+'">'+nota+' ('+accounting.formatNumber((nota*100)/act.ofer18peso,2)+'%)</spam> de ';
 								html+='<spam class="notaTotal">'+act.ofer18peso+'</spam>';
 								html+='</div>';
@@ -798,15 +765,15 @@
 							.then(function (response) {primerIngreso();})
 							.catch(function (err) {console.log(err);cargarVariablesDesdeDB()});
 						})
-						.catch(function (err) {console.log(err);cargarVariablesDesdeDB()});
+						.catch(function (err) {console.log(err);});
 					})
-					.catch(function (err) {console.log(err);cargarVariablesDesdeDB()});
+					.catch(function (err) {console.log(err);});
 				}
 				function cargarVariablesDesdeDB(){
 					db.get('dataUnad').then(function(doc) {
 						try{
-							FORM.dataPrin.cursos=doc.cuerpo[0][3];
-							FORM.dataPrin.actividades=doc.cuerpo[0][2];
+							FORM.dataPrin.cursos=doc.cuerpo.actividades[3];
+							FORM.dataPrin.actividades=doc.cuerpo.actividades[2];
 							cargarActividadesOrderFecha();
 						}catch(e){};
 					}).then(function(response) {utilidades.log_('Data Cargada a FORM.<br>');})
@@ -817,9 +784,9 @@
 					alert("Bienvenido a SUA UNAD. \nEs tu primer ingreso la app se sincronizara automaticamente.");
 					db.get('dataPersonal').then(function(doc) {
 						if(doc.cuerpo==undefined)doc.cuerpo={};
-						var nomUsu = prompt("Ingresa tu nombre y apellido.");
+						var nomUsu = '';
 						var nomUnad = prompt("Ingresa tu nombre de usuario UNAD.");
-						var idUsu = prompt("Ingresa el numero de documento de identidad de "+nomUsu);
+						var idUsu = '';
 						doc.cuerpo.dataUsu={
 							nomUsu:nomUsu,
 							idUsu:idUsu,
