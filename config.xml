@@ -4,7 +4,7 @@
         xmlns:gap   = "http://phonegap.com/ns/1.0"
         id          = "osg.sua.unad_alin"
         version     = "30.0.0"
-        versionCode = "31"
+        versionCode = "32"
 		>
     <!-- versionCode es un atributo opcional
 		 y solo es utilizado por Android -->
