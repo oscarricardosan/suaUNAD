@@ -782,7 +782,7 @@
 						})
 						.catch(function (err) {console.log(err);});
 					})
-					.catch(function (err) {console.log(err);});
+					.catch(function (err) {console.log(err);cargarVariablesDesdeDB();});
 				}
 				function cargarVariablesDesdeDB(){
 					db.get('dataUnad').then(function(doc) {
