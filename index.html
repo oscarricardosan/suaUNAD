@@ -20,49 +20,68 @@
   		<!-- Latest compiled and minified CSS -->
 		<link rel="stylesheet" href="bootstrap-3.3.5-dist/css/bootstrap.min.css">
 		<!-- Latest compiled and minified JavaScript -->
-		
+
+
 		<style>
-			#cuerpoActividades .actividad{
+			.menuActOptions{
+				background: white;
+				border: 1px solid #ccc;
+				bottom: 0;
+				display: none;
+				position: absolute;
+				right: 0;
+				z-index: 99;
+				width: 50%;
+			}
+			.menuActOptions ul, .menuActOptions li{
+				opacity: 1!important;
+				position: relative!important;
+				z-index: 9999!important;
+			}
+			.contenedoresActividades .actividad{
 				margin: 2em 0;
 				padding: 8px 4px;
 				border: 1.5px solid #DDA877;
 			}
-			#cuerpoActividades .actividad[tachado="1"] div{
+			.contenedoresActividades .actividad[tachado="1"] div{
 				display: none;
 			}
-			#cuerpoActividades .actividad[tachado="1"] .titulo{
+			.contenedoresActividades .actividad[tachado="1"] .titulo{
 				display: inherit!important;
 				text-decoration: line-through;
 			}
-			#cuerpoActividades .actividad[tachado="1"] .calificacion,
-			#cuerpoActividades .actividad[tachado="1"] .ultComen,
-			#cuerpoActividades .actividad[tachado="1"] .tiempoCierre{
+			.contenedoresActividades .actividad[tachado="1"] .calificacion,
+			.contenedoresActividades .actividad[tachado="1"] .ultComen,
+			.contenedoresActividades .actividad[tachado="1"] .tiempoCierre{
 				display: inherit!important;
 			}
-			#cuerpoActividades .actividad .titulo{
+			.contenedoresActividades .actividad[activa="1"] .titulo{
+				background: #9CA8CF;
+			}
+			.contenedoresActividades .actividad .titulo{
 				background: #f3f3f3;
 				border-bottom: 1px solid #cccccc;
 				font-weight: bold;
 				text-align:center;
 			}
-			#cuerpoActividades .actividad .tiempoCierre{
+			.contenedoresActividades .actividad .tiempoCierre{
 				color: white;
 				margin-top:10px;
 				text-align: center;
 			}
-			#cuerpoActividades .actividad .descripcion{
+			.contenedoresActividades .actividad .descripcion{
 				border:1px solid #ccc;
 				margin-bottom:3px;
 				margin-top:3px;
 				padding:5px;
 			}
-			#cuerpoActividades .actividad .menuAct{
+			.contenedoresActividades .actividad .menuAct{
 				display: inherit!important;
 				font-size: 1.5em;
 				padding:5px;
 				position: relative;
 			}
-			#cuerpoActividades .actividad .menuAct .opciones{
+			.contenedoresActividades .actividad .menuAct .opciones{
 				display: inherit!important;
 				font-size: 1.5rem;
 				background: white;
@@ -78,21 +97,21 @@
     			top: 1.5em;
     			z-index: 2;
 			}
-			#cuerpoActividades .actividad .menuAct .opciones .opcion{
+			.contenedoresActividades .actividad .menuAct .opciones .opcion{
 				display: inherit!important;
 				padding: 10px 17px;
 				border-bottom: 1px solid #ccc;
 			}
-			#cuerpoActividades .actividad .tiempoCierre[cierre="1"]{
+			.contenedoresActividades .actividad .tiempoCierre[cierre="1"]{
 				background: #095509;
 			}
-			#cuerpoActividades .actividad .tiempoCierre[cierre="0"]{
+			.contenedoresActividades .actividad .tiempoCierre[cierre="0"]{
 				background: black;
 			}
-			#cuerpoActividades .actividad .tiempoCierre[cierre="2"]{
+			.contenedoresActividades .actividad .tiempoCierre[cierre="2"]{
 				background: orange;
 			}
-			#cuerpoActividades .actividad .tiempoCierre[cierre="3"]{
+			.contenedoresActividades .actividad .tiempoCierre[cierre="3"]{
 				background: #A50000;
 			}
 			#Cortina{
@@ -123,48 +142,111 @@
 			}
 		</style>
 	</head>
-	<body style="padding-top: 60px;">
-		<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-			<div class="navbar-header">
-		    	<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex6-collapse">
-		        	<span class="sr-only">Menu</span>
-		        	<span class="icon-bar"></span>
-		        	<span class="icon-bar"></span>
-		        	<span class="icon-bar"></span>
-		      	</button>
-	      		<a class="navbar-brand" href="#">SUA UNAD</a>
-	    	</div>
-		    <!-- Collect the nav links, forms, and other content for toggling -->
-		    <div class="collapse navbar-collapse navbar-ex6-collapse">
-		    	<ul class="nav navbar-nav">
-		        	<li class="active enviarRecibir"><a href="#">Sincronizar</a></li>
-		        	<li class="active" style="display: none;" onclick="window.location.reload()"><a href="#">Recargar</a></li>
-		        	<li class="active configurar"><a href="#">Configurar</a></li>
-		        	<li class="active borrarBD"><a href="#">Limpiar BD</a></li>
-		        	<li class="active" onclick="$('#modalAyuda').modal();"><a href="#">Ayuda</a></li>
-		      	</ul>
-	    	</div><!-- /.navbar-collapse -->
-  		</nav>
- 		<div id="cuerpoActividades" class="col-sm-12" style="padding-bottom: 60px;"></div>
-		<nav class="navbar navbar-default navbar-fixed-bottom" role="navigation">
-			<div class="navbar-header">
-		    	<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex7-collapse">
-		        	<span class="sr-only">Menu 2</span>
-		        	<span class="icon-bar"></span>
-		        	<span class="icon-bar"></span>
-		        	<span class="icon-bar"></span>
-		      	</button>
-	      		<a class="navbar-brand" href="#">Herramientas</a>
-	    	</div>
-		    <!-- Collect the nav links, forms, and other content for toggling -->
-		    <div class="collapse navbar-collapse navbar-ex7-collapse">
-		    	<ul class="nav navbar-nav">
-		        	<li class="active actCerradas"><a href="#">Actividades Cerradas</a></li>
-		        	<li class="active actSinCerrar"><a href="#">Actividades Sin Cerrar</a></li>
-		        	<li class="active actTodas"><a href="#">Todas las Actividades</a></li>
-		      	</ul>
-	    	</div><!-- /.navbar-collapse -->
-  		</nav>
+	<body>
+		<!-- Simple header with scrollable tabs. -->
+		<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+			<header class="mdl-layout__header">
+				<div class="mdl-layout__header-row">
+					<!-- Title -->
+					<span class="mdl-layout-title">SUA UNAD</span>
+				</div>
+				<!-- Tabs -->
+				<div class="mdl-layout__tab-bar mdl-js-ripple-effect titulosCursos">
+					<a href="#scroll-tab-1" class="mdl-layout__tab"></a>
+					<a href="#scroll-tab-2" class="mdl-layout__tab"></a>
+					<a href="#scroll-tab-3" class="mdl-layout__tab"></a>
+					<a href="#scroll-tab-4" class="mdl-layout__tab"></a>
+					<a href="#scroll-tab-5" class="mdl-layout__tab"></a>
+					<a href="#scroll-tab-6" class="mdl-layout__tab"></a>
+					<a href="#scroll-tab-7" class="mdl-layout__tab"></a>
+					<a href="#scroll-tab-8" class="mdl-layout__tab"></a>
+					<a href="#scroll-tab-9" class="mdl-layout__tab"></a>
+					<a href="#scroll-tab-10" class="mdl-layout__tab"></a>
+					<a href="#scroll-tab-11" class="mdl-layout__tab"></a>
+					<a href="#scroll-tab-12" class="mdl-layout__tab"></a>
+					<a href="#scroll-tab-13" class="mdl-layout__tab"></a>
+					<a href="#scroll-tab-14" class="mdl-layout__tab"></a>
+					<a href="#scroll-tab-15" class="mdl-layout__tab"></a>
+					<a href="#scroll-tab-16" class="mdl-layout__tab"></a>
+					<a href="#scroll-tab-17" class="mdl-layout__tab"></a>
+					<a href="#scroll-tab-18" class="mdl-layout__tab"></a>
+					<a href="#scroll-tab-19" class="mdl-layout__tab"></a>
+					<a href="#scroll-tab-20" class="mdl-layout__tab"></a>
+					<a href="#scroll-tab-21" class="mdl-layout__tab"></a>
+					<a href="#scroll-tab-22" class="mdl-layout__tab"></a>
+				</div>
+			</header>
+			<div class="mdl-layout__drawer">
+				<span class="mdl-layout-title" style="padding: 1em 0; margin: 0; text-align: center; background: #a94442;">
+						<img src="images/icon.png">
+						<div class="nomUnad" style="padding: 0.5em 0 0 0; color: white"></div>
+				</span>
+				<ul class="demo-list-icon mdl-list">
+					<li class="mdl-list__item">
+						<span class="mdl-list__item-primary-content">
+							<i class="material-icons mdl-list__item-icon">sync</i>
+							<a class="mdl-navigation__link enviarRecibir" href="">Sincronizar</a>
+						</span>
+					</li>
+					<li class="mdl-list__item"  style="display: none;">
+						<span class="mdl-list__item-primary-content">
+							<i class="material-icons mdl-list__item-icon">refresh</i>
+							<a class="mdl-navigation__link recargar" href=""  onclick="window.location=''">Recargar</a>
+						</span>
+					</li>
+					<li class="mdl-list__item">
+						<span class="mdl-list__item-primary-content">
+							<i class="material-icons mdl-list__item-icon">face</i>
+							<a class="mdl-navigation__link configurar" href="">Usuario</a>
+						</span>
+					</li>
+					<li class="mdl-list__item">
+						<span class="mdl-list__item-primary-content">
+							<i class="material-icons mdl-list__item-icon">delete forever</i>
+							<a class="mdl-navigation__link borrarBD" href="">Limpiar BD</a>
+						</span>
+					</li>
+					<li class="mdl-list__item">
+						<span class="mdl-list__item-primary-content">
+							<i class="material-icons mdl-list__item-icon">help</i>
+							<a class="mdl-navigation__link ayuda" href=""onclick="$('#modalAyuda').modal();">Ayuda</a>
+						</span>
+					</li>
+					<li class="mdl-list__item">
+						<span class="mdl-list__item-primary-content" style="font-size: 14px;font-weight: 400; color: #424242;">
+						  	Actividades Abiertas
+						</span>
+						<span class="mdl-list__item-secondary-action">
+							<label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="act_switch_abiertas">
+								<input type="checkbox" id="act_switch_abiertas" class="mdl-switch__input" checked>
+							</label>
+						</span>
+					</li>
+					<li class="mdl-list__item">
+						<span class="mdl-list__item-primary-content" style="font-size: 14px;font-weight: 400; color: #424242;">
+						  	Actividades Cerradas
+						</span>
+						<span class="mdl-list__item-secondary-action">
+							<label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="act_switch_cerradas">
+								<input type="checkbox" id="act_switch_cerradas" class="mdl-switch__input">
+							</label>
+						</span>
+					</li>
+				</ul>
+			</div>
+
+			<main class="mdl-layout__content contenedoresActividades">
+			</main>
+			<div style="position:absolute; z-index: 99999;" class="menuActOptions">
+				<span class="titleActSelect"></span>
+				<ul class="mdl-menu mdl-menu--bottom-left opciones">
+					<li class="mdl-menu__item mdl-menu__item--full-bleed-divider opcion" accion="1" style="opacity: 1!important;">Tachar</li>
+					<li class="mdl-menu__item mdl-menu__item--full-bleed-divider opcion" accion="4">Quitar Tachado</li>
+					<li class="mdl-menu__item mdl-menu__item--full-bleed-divider opcion" accion="2">Comentarios</li>
+					<li class="mdl-menu__item mdl-menu__item--full-bleed-divider opcion" accion="3">Nota</li>
+				</ul>
+			</div>
+		</div>
   		<div id="Cortina">CARGANDO</div>
   		<div class="modal fade" id="modalAyuda">
 		  	<div class="modal-dialog">
@@ -217,7 +299,7 @@
 		    	</div><!-- /.modal-content -->
 		  	</div><!-- /.modal-dialog -->
 		</div><!-- /.modal -->
-		
+
 		<div class="modal fade" id="modalConfiguracion">
 		  	<div class="modal-dialog">
 			    <div class="modal-content">
@@ -227,7 +309,7 @@
 	      			</div>
 		      		<div class="modal-body">
 		      			<p>
-		      				Los datos suministrados en ning&uacute;n momento ser&aacute;n entregados y/o usados por terceros. 
+		      				Los datos suministrados en ning&uacute;n momento ser&aacute;n entregados y/o usados por terceros.
 							Son datos que habilitan la funcionalidad de almacenar comentarios, notas y dem&aacute;s.
 		      			</p>
 						<div class="form-group" style="display: none">
@@ -237,11 +319,11 @@
 					  	<div class="form-group">
 					    	<label>Nombre de usuario UNAD</label>
 					    	<input class="form-control" id="nomUnad">
-					  	</div>		
+					  	</div>
 					  	<div class="form-group" style="display: none">
 					    	<label>Nombre para mostrar</label>
 					    	<input class="form-control" id="nombre">
-					  	</div>	
+					  	</div>
 
 		      		</div>
 		      		<div class="modal-footer">
@@ -263,7 +345,7 @@
 					    	<label>Nota de la actividad</label>
 				    		<input class="form-control" id="nuevaNota">
 				    		<label>Sobre <span class="notaTotal"></span></label>
-					  	</div>	
+					  	</div>
 		      		</div>
 		      		<div class="modal-footer">
 		      			<button type="button" class="btn btn-default guardar" data-dismiss="modal">Guardar</button>
@@ -283,8 +365,8 @@
 		        		<div class="form-group">
 					    	<label>Ingrese Comentario</label>
 					    	<textArea class="form-control" id="comentario"></textArea>
-					  	</div>	
-					  	<div class="historico" style="height: 20em; overflow: auto"></div>	
+					  	</div>
+					  	<div class="historico" style="height: 20em; overflow: auto"></div>
 		      		</div>
 		      		<div class="modal-footer">
 		      			<button type="button" class="btn btn-default guardar" data-dismiss="modal">Registrar Nuevo Comentario</button>
@@ -293,21 +375,33 @@
 		    	</div><!-- /.modal-content -->
 		  	</div><!-- /.modal-dialog -->
 		</div><!-- /.modal -->
+
 		<script>
+			var utilidades = {
+				abreCargador:function(){$('#Cortina').attr('st','1')},
+				cierraCargador:function(){$('#Cortina').attr('st','0')},
+				log_: function(msg){$('#modalLog .cuerpo').append(msg);}
+			}
+			utilidades.abreCargador();
 			$(document).ready(function(){
 				var FORM={
-					dataPrin:{}
+					dataPrin:{},
+					clickkMenuAct:0
 				};
 				var nameDB = 'SUA_UNAD';
 				var db = new PouchDB(nameDB);
 				var remoteCouch = false;
-				var utilidades = {
-					abreCargador:function(){$('#Cortina').attr('st','1')},
-					cierraCargador:function(){$('#Cortina').attr('st','0')},
-					log_: function(msg){$('#modalLog .cuerpo').append(msg);}
-				}
 				utilidades.log_('Utilidades cargadas.<br>');
-				$('li.configurar').click(function(){
+				$('body').click(function(){
+					if(FORM.clickkMenuAct != 1)
+						$('.menuActOptions').css('display','none');
+					FORM.clickkMenuAct = 0;
+				});
+				$('main').scroll(function(){
+					$('.menuActOptions').css('display','none');
+					FORM.clickkMenuAct = 0;
+				});
+				$('a.configurar').click(function(){
 					utilidades.cierraCargador();
 					$('#modalConfiguracion').modal();
 					db.get('dataPersonal').then(function(doc) {
@@ -339,8 +433,7 @@
 					}).then(function(response) {
 						utilidades.log_('Se guarda data.<br>');
 						alert('Datos Guardados');
-						cargarVariablesDesdeDB();
-						cargarActividadesOrderFecha();
+						window.location='';
 					})
 					.catch(function (err) {alert(err);})
 				});
@@ -359,7 +452,7 @@
 							docAd.cuerpo[idUsu].acts[idAct].comentario.push({
 								fechaRegISO:moment().format('YYYY-MM-DD HH:mm'),
 								fechaRegInteger:moment().format('YYYYMMDDHHmm'),
-								comen:nomUsu+': nota actualizada a '+nuevaNota+'.'	
+								comen:nomUsu+': nota actualizada a '+nuevaNota+'.'
 							});
 						  	return db.put({
 								_id:'dataAdicional',
@@ -367,6 +460,7 @@
 								cuerpo:docAd.cuerpo
 							});
 						}).then(function(response) {
+							window.location='';
 							cargarVariablesDesdeDB();
 							$('div.actividad[id="'+idAct+'"]').find('.nuevaNota')
 							.text(' '+nuevaNota+' ('+accounting.formatNumber((nuevaNota*100)/notaTot,2)+'%)');
@@ -387,7 +481,7 @@
 							docAd.cuerpo[idUsu].acts[idAct].comentario.push({
 								fechaRegISO:moment().format('YYYY-MM-DD HH:mm'),
 								fechaRegInteger:moment().format('YYYYMMDDHHmm'),
-								comen:nomUsu+': '+$('#modalComentario #comentario').val()	
+								comen:nomUsu+': '+$('#modalComentario #comentario').val()
 							});
 						  	return db.put({
 								_id:'dataAdicional',
@@ -395,26 +489,27 @@
 								cuerpo:docAd.cuerpo
 							});
 						}).then(function(response) {
+							window.location='';
 							$('#modalComentario #comentario').val('');
-							$("#cuerpoActividades .actividad .menuAct .opciones .opcion[accion='2']").click();
+							$(".contenedoresActividades .actividad .menuAct .opciones .opcion[accion='2']").click();
 							cargarVariablesDesdeDB();
 						})
 						.catch(function (err) {alert(err);});
 					})
 					.catch(function (err) {alert(err);})
 				});
-				$('li.borrarBD').click(function(){
+				$('a.borrarBD').click(function(){
 					var r = confirm("Con esta accion va a eliminar la Base de Datos(BD).\nEsta seguro?, esta acción es irreversible.\nAceptar(Si)");
 					if (r == true) {
 					    db.destroy();
 					    alert('Base de datos eliminada');
-						window.location.reload();					    
-					} 
+						window.location='';
+					}
 				});
-				$('li.verLog').click(function(){
+				$('a.verLog').click(function(){
 					$('#modalLog').modal();
 				});
-				$('li.enviarRecibir').click(function(){
+				$('a.enviarRecibir').click(function(){
 					utilidades.abreCargador();
 					var idAct = FORM.idActActual;
 					db.get('dataPersonal').then(function(doc) {
@@ -425,6 +520,7 @@
 						var nomUnad = doc.cuerpo.dataUsu.nomUnad;
 						var url ="https://savne.net/sua/actividades/"+nomUnad+"";
 						var claveUsu = prompt(nomUnad+" ingresa tu clave de la plataforma UNAD.");
+						if(!claveUsu || $.trim(claveUsu)==''){utilidades.cierraCargador();return false;}
 						var miCahe = claveUsu;
 						var lenCl = claveUsu.length;
 						var c1 = Math.floor(Math.random() * lenCl-2) ;
@@ -468,7 +564,9 @@
 										cuerpo:data
 									});
 								}).then(function(response) {
-									alert('Sincronizacion Exitosa.');cargarVariablesDesdeDB();
+									alert('Sincronizacion Exitosa.');
+									window.location='';
+									cargarVariablesDesdeDB();
 									cargarActividadesOrderFecha();
 									utilidades.cierraCargador();
 								})
@@ -483,36 +581,23 @@
 					})
 					.catch(function (err) {alert(err);})
 				});
-				$('li.actCerradas').click(function(){
-					$('#cuerpoActividades .actividad').css('display','none');
-					$('#cuerpoActividades .actividad .tiempoCierre[cierre="0"]').parent().css('display','');
+				$('#act_switch_cerradas, #act_switch_abiertas').click(function(){
+					filtroStatusAct();
 				});
-				$('li.actSinCerrar').click(function(){
-					$('#cuerpoActividades .actividad').css('display','none');
-					$('#cuerpoActividades .actividad .tiempoCierre[cierre="1"]').parent().css('display','');
-					$('#cuerpoActividades .actividad .tiempoCierre[cierre="2"]').parent().css('display','');
-					$('#cuerpoActividades .actividad .tiempoCierre[cierre="3"]').parent().css('display','');
+				$("body").on("click",".actividad .menuAct", function() {
+					FORM.clickkMenuAct = 1;
+					function desactivarActividades(){
+						$('.actividad').attr('activa', '0');
+					}
+					$(this).closest('.actividad').attr('activa', '1');
+					$('.menuActOptions').css('display','inline');
+					$('.menuActOptions .titleActSelect').html('');
 				});
-				$('li.actTodas').click(function(){
-					$('#cuerpoActividades .actividad').css('display','');
-				});
-				$("#cuerpoActividades").on("click",".actividad .menuAct", function() {
-					if($(this).find('.opciones').length==0){
-						$('#cuerpoActividades .actividad .menuAct').html('');
-						$(this).html(
-							'<div class="opciones">'+
-							'<div class="opcion" accion="1">Tachar</div>'+
-							'<div class="opcion" accion="4">Quitar_Tachado</div>'+
-							'<div class="opcion" accion="2">Comentarios</div>'+
-							'<div class="opcion" accion="3">Nota</div>'+
-							'</div>'
-						);
-					}else $('#cuerpoActividades .actividad .menuAct').html('');
-				});	
-				$("#cuerpoActividades").on("click",".actividad .menuAct .opciones .opcion[accion='1']", function() {
+				$("body").on("click",".menuActOptions .opciones .opcion[accion='1']", function() {
 					var elementAct = this;
-					var elementActPadre = $(elementAct).closest( ".actividad" );
+					var elementActPadre = $(".actividad[activa='1']");
 					var idAct = $(elementActPadre).attr('id');
+					$('.menuActOptions').css('display','none');
 					db.get('dataPersonal').then(function(doc) {
 						if(validaDataPersonal(doc)==false)return false;
 						doc=validaDataPersonal(doc);
@@ -524,7 +609,7 @@
 							docAd.cuerpo[idUsu].acts[idAct].comentario.push({
 								fechaRegISO:moment().format('YYYY-MM-DD HH:mm'),
 								fechaRegInteger:moment().format('YYYYMMDDHHmm'),
-								comen:nomUsu+': tacho la actividad.'	
+								comen:nomUsu+' tacho la actividad.'
 							});
 						  	return db.put({
 								_id:'dataAdicional',
@@ -539,11 +624,12 @@
 					})
 					.catch(function (err) {alert(err);})
 				});
-				$("#cuerpoActividades").on("click",".actividad .menuAct .opciones .opcion[accion='2']", function() {
+				$("body").on("click",".menuActOptions .opciones .opcion[accion='2']", function() {
 					var elementAct = this;
-					var elementActPadre = $(elementAct).closest( ".actividad" );
+					var elementActPadre = $(".actividad[activa='1']");
 					var idAct = $(elementActPadre).attr('id');
 					FORM.idActActual = idAct;
+					$('.menuActOptions').css('display','none');
 					db.get('dataPersonal').then(function(doc) {
 						if(validaDataPersonal(doc)==false)return false;
 						doc=validaDataPersonal(doc);
@@ -556,9 +642,9 @@
 								datActAdici = docAd.cuerpo[usuario].acts[FORM.idActActual];
 								$.each(datActAdici.comentario, function( index, comen ) {
 									comentarios.push(comen);
-								}); 
+								});
 							}
-							
+
 							comentarios = _.sortBy(comentarios, 'fechaRegInteger');
 							comentarios.reverse();
 							$('#modalComentario .historico').html('');
@@ -578,9 +664,10 @@
 					})
 					.catch(function (err) {alert(err);})
 				});
-				$("#cuerpoActividades").on("click",".actividad .menuAct .opciones .opcion[accion='3']", function() {
+				$("body").on("click",".menuActOptions .opciones .opcion[accion='3']", function() {
+					$('.menuActOptions').css('display','none');
 					var elementAct = this;
-					var elementActPadre = $(elementAct).closest( ".actividad" );
+					var elementActPadre = $(".actividad[activa='1']");
 					var idAct = $(elementActPadre).attr('id');
 					FORM.idActActual = idAct;
 					var notaTotal = elementActPadre.find('.notaTotal').text();
@@ -591,9 +678,10 @@
 					$('#modalNota #nuevaNota').val(notaActual);
 					$('#modalNota').modal();
 				});
-				$("#cuerpoActividades").on("click",".actividad .menuAct .opciones .opcion[accion='4']", function() {
+				$("body").on("click",".menuActOptions .opciones .opcion[accion='4']", function() {
+					$('.menuActOptions').css('display','none');
 					var elementAct = this;
-					var elementActPadre = $(elementAct).closest( ".actividad" );
+					var elementActPadre = $(".actividad[activa='1']");
 					var idAct = $(elementActPadre).attr('id');
 					db.get('dataPersonal').then(function(doc) {
 						if(validaDataPersonal(doc)==false)return false;
@@ -606,7 +694,7 @@
 							docAd.cuerpo[idUsu].acts[idAct].comentario.push({
 								fechaRegISO:moment().format('YYYY-MM-DD HH:mm'),
 								fechaRegInteger:moment().format('YYYYMMDDHHmm'),
-								comen:nomUsu+'Se remueve tachado la actividad.'
+								comen:nomUsu+' se remueve tachado la actividad.'
 							});
 						  	return db.put({
 								_id:'dataAdicional',
@@ -638,8 +726,8 @@
 						if(nSegs<0)msg_='Cerro hace: ';
 						else msg_='Cierra en: ';
 						msg+=msg_+' '+moment(now).preciseDiff(act.fecFinISO+" 23:59:59");
-						$('#cuerpoActividades .actividad[i="'+index+'"] .tiempoCierre').html(msg);
-						$('#cuerpoActividades .actividad[i="'+index+'"] .tiempoCierre').attr('cierre',cierre);
+						$('.contenedoresActividades .actividad[i="'+index+'"] .tiempoCierre').html(msg);
+						$('.contenedoresActividades .actividad[i="'+index+'"] .tiempoCierre').attr('cierre',cierre);
 					});
 				}
 				function validaDataAdicional(Data,idUsu,idAct){
@@ -665,24 +753,27 @@
 						$('li.configurar').click();
 						return false;
 					}
+					$('.nomUnad').html(Data.cuerpo.dataUsu.nomUnad);
 					return Data;
 				}
 				function renderizarActividades(data){
 					db.get('dataPersonal').then(function(doc) {
 						if(validaDataPersonal(doc, 1)==false)return false;
-						doc=validaDataPersonal(doc, 0); 
+						doc=validaDataPersonal(doc, 0);
 						var idUsu = doc.cuerpo.dataUsu.idUsu;
 						var nomUsu = doc.cuerpo.dataUsu.nomUsu;
 						db.get('dataAdicional').then(function(docAd) {
-							$('#cuerpoActividades').html('');
+							$('.contenedoresActividades #scroll-tab-1').html('');
 							moment.locale('es');
 							var i=0;
+							$('.contenedoresActividades #scroll-tab-1').html('<ul class="demo-list-three mdl-list"></ul>');
+							var htmlFinal='';
 							$.each(data, function( index, act ) {
 								var idGenAct = act.ofer18curso+'-'+act.ofer18idactividad+'-'+act.ofer18fase;
 								curso=_.where(FORM.dataPrin.cursos, {unad40id: act.ofer18curso});
 								var tachado=0;
 								var nota=0;
-								
+
 								try{
 									docAd = validaDataAdicional(docAd, idUsu, idGenAct);
     								datActAdici = docAd.cuerpo[idUsu].acts[idGenAct];
@@ -706,14 +797,14 @@
 		    								tachado=undefined;
 		    								nota=undefined;
 		    							}
-	    							}	
+	    							}
 	    							if(datActAdici!=undefined){
 	    								if(datActAdici.comentario.length>0){
 			    							$.each(datActAdici.comentario, function( index, comen ) {
 												comentarios.push(comen);
 											});
 										}
-									} 	
+									}
 								}
 								if(tachado==undefined)tachado==0;
 								if(nota==undefined)nota=0;
@@ -731,7 +822,7 @@
 									'</div>';
 								}
 								html='';
-								html+='<div class="col-sm-12 actividad" i='+index+' id='+idGenAct+' tachado='+tachado+'>';
+								html+='<div class="col-sm-12 actividad" i='+index+' id='+idGenAct+' tachado='+tachado+' idUnad="'+curso[0].unad40id+'">';
 								html+='<div class="col-sm-12 titulo">';
 								html+='<spam class="glyphicon glyphicon-th pull-right menuAct"></spam>';
 								html+='<spam class="pull-left">'+(index+1)+')</spam> '+curso[0].unad40nombre+' ('+act.ofer18curso+'A_'+act.ofer18per_aca+')<br>';
@@ -752,15 +843,37 @@
 								html+='<div class="col-sm-12 tiempoCierre" cierre="">';
 								html+='</div>';
 								html+='</div>';
-								$('#cuerpoActividades').append(html);
+
+								/*html='<li class="mdl-list__item mdl-list__item--three-line">';
+								html+='<span class="mdl-list__item-primary-content">';
+								//Right aligned menu below button
+								html+='<button class="mdl-button mdl-js-button mdl-button--icon" id="menuAct-'+index+'">';
+								html+='<i class="material-icons">menu</i>';
+								html+='</button>';
+								html+='<i class="material-icons mdl-list__item-avatar">person</i>';
+								html+='<span>'+(index+1)+') '+curso[0].unad40nombre+' ('+act.ofer18curso+'A_'+act.ofer18per_aca+')</span>';
+								html+='<span class="mdl-list__item-text-body">';
+								html+=act.ofer18curso;
+								html+='</span>';
+								html+='<span class="mdl-list__item-primary-content">';
+								html+=act.ofer18curso;
+								html+='</span>';
+								html+='</span>';
+								html+='<span class="mdl-list__item-secondary-content">';
+								html+='<a class="mdl-list__item-secondary-action" href="#"><i class="material-icons">star</i></a>';
+								html+='</span>';
+								html+='</li>';*/
+								htmlFinal+=html;
 								i++;
 							});
 							if(i==0){
-								$('#cuerpoActividades').append('<h3>No se encuentran actividades. Vaya al menu superior Sincronizar con UNAD.</h3>');
+								htmlFinal='<h3>No se encuentran actividades. Vaya al menu superior Sincronizar con UNAD.</h3>';
 							}
+							$('.contenedoresActividades #scroll-tab-1 ul').html(htmlFinal);
 							ajustarCronometros();
 							iniciarContadorTime();
-							$('li.actSinCerrar').click();
+							filtroStatusAct();
+							AsignaToContenedorDeActs(FORM.dataPrin.cursos);
 						}).then(function(response) {})
 						.catch(function (err) {alert(err);});
 					}).then(function(response) {})
@@ -771,6 +884,29 @@
 					renderizarActividades(FORM.dataPrin.actividades);
 					$('li.actSinCerrar').click();
 				};
+				function cargarTitleTabs(titles){
+					$('.titulosCursos').html('<a href="#scroll-tab-1" class="mdl-layout__tab is-active">Todo</a>');
+					$('.contenedoresActividades').html(
+						'<section class="mdl-layout__tab-panel is-active" id="scroll-tab-1">'+
+						'<div class="page-content">'+
+						'</div>'+
+						'</section>'
+					);
+					$.each(titles, function( index, title ) {
+						var i = index +2;
+						$('.titulosCursos').append(
+							'<a href="#scroll-tab-'+i+'" class="mdl-layout__tab" idUnad="'+title.unad40id+'">' +
+								title.unad40nombre+'('+title.unad40id+')'+
+							'</a>'
+						);
+						$('.contenedoresActividades').append(
+							'<section class="mdl-layout__tab-panel" id="scroll-tab-'+i+'" idUnad="'+title.unad40id+'">'+
+							'<div class="page-content">'+
+							'</div>'+
+							'</section>'
+						);
+					});
+				}
 				function estructuraDocumentos(){
 					db.put({_id: 'dataAdicional'})
 					.then(function (response) {
@@ -789,7 +925,9 @@
 						try{
 							FORM.dataPrin.cursos=doc.cuerpo.actividades[3];
 							FORM.dataPrin.actividades=doc.cuerpo.actividades[2];
+							cargarTitleTabs(FORM.dataPrin.cursos);
 							cargarActividadesOrderFecha();
+
 						}catch(e){};
 					}).then(function(response) {utilidades.log_('Data Cargada a FORM.<br>');})
 						.catch(function (err) {alert(err);
@@ -813,18 +951,49 @@
 							cuerpo:doc.cuerpo
 						});
 					}).then(function(response) {
-						$('li.enviarRecibir').click();
+						$('a.enviarRecibir').click();
 					})
 					.catch(function (err) {alert(err);})
 				}
 				$('#modalAyuda').on('shown.bs.modal', function () {
 					$('#myInput').focus();
 				})
+				$('a.enviarRecibir, a.recargar, a.configurar, a.borrarBD, a.ayuda').click(function(event){
+					event.preventDefault();
+				});
+				function filtroStatusAct(){
+					$('.contenedoresActividades .actividad').css('display','none');
+					if($('#act_switch_cerradas').prop('checked'))
+						$('.contenedoresActividades .actividad .tiempoCierre[cierre="0"]').parent().css('display','');
+					if($('#act_switch_abiertas').prop('checked')){
+						$('.contenedoresActividades .actividad .tiempoCierre[cierre="1"]').parent().css('display','');
+						$('.contenedoresActividades .actividad .tiempoCierre[cierre="2"]').parent().css('display','');
+						$('.contenedoresActividades .actividad .tiempoCierre[cierre="3"]').parent().css('display','');
+					}
+				}
+				function AsignaToContenedorDeActs(cursos){
+					$.each(cursos, function( index, curso) {
+						var actividades = '';
+						if($('.actividad[idUnad="'+curso.unad40id+'"]').length==0){
+							$('.mdl-layout__tab[idUnad="'+curso.unad40id+'"]').css('display','none');
+							$('section[idUnad="'+curso.unad40id+'"]').css('display','none');
+						}
+						$('.actividad[idUnad="'+curso.unad40id+'"]').each(function(){
+							html = $(this).clone().wrapAll("<div/>").parent().html();
+							actividades+=html;
+						});
+						$('section[idUnad="'+curso.unad40id+'"]').html(actividades);
+					});
+				}
 				utilidades.log_('Funciones Definidas.<br>');
 				estructuraDocumentos();
 				utilidades.log_('Finaliza carga.<br>');
-				utilidades.cierraCargador();
+				setTimeout(function(){ utilidades.cierraCargador() }, 1000);
 			});
-		</script>  		
+		</script>
+		<!-- Material Design-->
+		<link rel="stylesheet" href="css/material.min.css">
+		<script src="js/material.min.js"></script>
+		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 	</body>
 </html>
