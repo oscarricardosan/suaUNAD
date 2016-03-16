@@ -3,9 +3,9 @@
 <widget xmlns   = "http://www.w3.org/ns/widgets"
         xmlns:gap   = "http://phonegap.com/ns/1.0"
         id          = "osg.sua.unad_alin"
-        version     = "30.0.1"
-        versionCode = "33"
-		>
+        version     = "35.5.0"
+        versionCode = "34"
+  >
     <!-- versionCode es un atributo opcional
 		 y solo es utilizado por Android -->
   
@@ -24,7 +24,7 @@
   
   <icon src="images/icon.png" />
   
-  <gap:plugin name="org.apache.cordova.file" />
+  <!--<gap:plugin name="org.apache.cordova.file" />-->
   <gap:plugin name="org.apache.cordova.inappbrowser" />
   
 </widget>

@@ -20,7 +20,10 @@
   		<!-- Latest compiled and minified CSS -->
 		<link rel="stylesheet" href="bootstrap-3.3.5-dist/css/bootstrap.min.css">
 		<!-- Latest compiled and minified JavaScript -->
-
+		<!-- Material Design-->
+		<link rel="stylesheet" href="css/material.min.css">
+		<script src="js/material.min.js"></script>
+		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
 		<style>
 			.menuActOptions{
@@ -59,7 +62,7 @@
 				background: #9CA8CF;
 			}
 			.contenedoresActividades .actividad .titulo{
-				background: #f3f3f3;
+				background: rgb(217, 224, 234);
 				border-bottom: 1px solid #cccccc;
 				font-weight: bold;
 				text-align:center;
@@ -433,7 +436,6 @@
 					}).then(function(response) {
 						utilidades.log_('Se guarda data.<br>');
 						alert('Datos Guardados');
-						window.location='';
 					})
 					.catch(function (err) {alert(err);})
 				});
@@ -460,7 +462,6 @@
 								cuerpo:docAd.cuerpo
 							});
 						}).then(function(response) {
-							window.location='';
 							cargarVariablesDesdeDB();
 							$('div.actividad[id="'+idAct+'"]').find('.nuevaNota')
 							.text(' '+nuevaNota+' ('+accounting.formatNumber((nuevaNota*100)/notaTot,2)+'%)');
@@ -489,7 +490,6 @@
 								cuerpo:docAd.cuerpo
 							});
 						}).then(function(response) {
-							window.location='';
 							$('#modalComentario #comentario').val('');
 							$(".contenedoresActividades .actividad .menuAct .opciones .opcion[accion='2']").click();
 							cargarVariablesDesdeDB();
@@ -586,9 +586,7 @@
 				});
 				$("body").on("click",".actividad .menuAct", function() {
 					FORM.clickkMenuAct = 1;
-					function desactivarActividades(){
-						$('.actividad').attr('activa', '0');
-					}
+					desactivarActividades();
 					$(this).closest('.actividad').attr('activa', '1');
 					$('.menuActOptions').css('display','inline');
 					$('.menuActOptions .titleActSelect').html('');
@@ -694,7 +692,7 @@
 							docAd.cuerpo[idUsu].acts[idAct].comentario.push({
 								fechaRegISO:moment().format('YYYY-MM-DD HH:mm'),
 								fechaRegInteger:moment().format('YYYYMMDDHHmm'),
-								comen:nomUsu+' se remueve tachado la actividad.'
+								comen:nomUsu+' Se remueve tachado la actividad.'
 							});
 						  	return db.put({
 								_id:'dataAdicional',
@@ -843,26 +841,6 @@
 								html+='<div class="col-sm-12 tiempoCierre" cierre="">';
 								html+='</div>';
 								html+='</div>';
-
-								/*html='<li class="mdl-list__item mdl-list__item--three-line">';
-								html+='<span class="mdl-list__item-primary-content">';
-								//Right aligned menu below button
-								html+='<button class="mdl-button mdl-js-button mdl-button--icon" id="menuAct-'+index+'">';
-								html+='<i class="material-icons">menu</i>';
-								html+='</button>';
-								html+='<i class="material-icons mdl-list__item-avatar">person</i>';
-								html+='<span>'+(index+1)+') '+curso[0].unad40nombre+' ('+act.ofer18curso+'A_'+act.ofer18per_aca+')</span>';
-								html+='<span class="mdl-list__item-text-body">';
-								html+=act.ofer18curso;
-								html+='</span>';
-								html+='<span class="mdl-list__item-primary-content">';
-								html+=act.ofer18curso;
-								html+='</span>';
-								html+='</span>';
-								html+='<span class="mdl-list__item-secondary-content">';
-								html+='<a class="mdl-list__item-secondary-action" href="#"><i class="material-icons">star</i></a>';
-								html+='</span>';
-								html+='</li>';*/
 								htmlFinal+=html;
 								i++;
 							});
@@ -923,11 +901,17 @@
 				function cargarVariablesDesdeDB(){
 					db.get('dataUnad').then(function(doc) {
 						try{
+							desactivarActividades();
+							var titAct = $('.mdl-layout__tab.is-active').attr('idunad');
 							FORM.dataPrin.cursos=doc.cuerpo.actividades[3];
 							FORM.dataPrin.actividades=doc.cuerpo.actividades[2];
 							cargarTitleTabs(FORM.dataPrin.cursos);
 							cargarActividadesOrderFecha();
-
+							console.log(titAct);
+							if(titAct!='' && titAct!=null && titAct!=undefined){
+								$('.mdl-layout__tab').removeClass('is-active');
+								$('.mdl-layout__tab[idunad="'+titAct+'"]').click();
+							}
 						}catch(e){};
 					}).then(function(response) {utilidades.log_('Data Cargada a FORM.<br>');})
 						.catch(function (err) {alert(err);
@@ -957,6 +941,13 @@
 				}
 				$('#modalAyuda').on('shown.bs.modal', function () {
 					$('#myInput').focus();
+				});
+				$("body").on("click",".mdl-layout__tab", function() {
+					$('.mdl-layout__tab').removeClass('is-active');
+					$(this).addClass('is-active');
+					$('section').hide(0);
+					$('section'+$(this).attr('href')).show(500);
+
 				})
 				$('a.enviarRecibir, a.recargar, a.configurar, a.borrarBD, a.ayuda').click(function(event){
 					event.preventDefault();
@@ -985,15 +976,15 @@
 						$('section[idUnad="'+curso.unad40id+'"]').html(actividades);
 					});
 				}
+				function desactivarActividades(){
+					$('.actividad').attr('activa', '0');
+				}
 				utilidades.log_('Funciones Definidas.<br>');
 				estructuraDocumentos();
 				utilidades.log_('Finaliza carga.<br>');
-				setTimeout(function(){ utilidades.cierraCargador() }, 1000);
+				utilidades.cierraCargador();
 			});
 		</script>
-		<!-- Material Design-->
-		<link rel="stylesheet" href="css/material.min.css">
-		<script src="js/material.min.js"></script>
-		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
 	</body>
 </html>
