@@ -69,7 +69,9 @@
 			}
 			.contenedoresActividades .actividad .tiempoCierre{
 				color: white;
+				height: 2em;
 				margin-top:10px;
+				overflow: hidden;
 				text-align: center;
 			}
 			.contenedoresActividades .actividad .descripcion{
@@ -396,12 +398,17 @@
 				var remoteCouch = false;
 				utilidades.log_('Utilidades cargadas.<br>');
 				$('body').click(function(){
-					if(FORM.clickkMenuAct != 1)
+					if(FORM.clickkMenuAct != 1){
 						$('.menuActOptions').css('display','none');
+						desactivarActividades();
+					}
 					FORM.clickkMenuAct = 0;
 				});
-				$('main').scroll(function(){
-					$('.menuActOptions').css('display','none');
+				$('body').mouseup(function(){
+					if(FORM.clickkMenuAct != 1){
+						$('.menuActOptions').css('display','none');
+						desactivarActividades();
+					}
 					FORM.clickkMenuAct = 0;
 				});
 				$('a.configurar').click(function(){
@@ -573,7 +580,7 @@
 								.catch(function (err) {alert(err);});
 							})
 							.fail(function() {
-								alert( "Request failed: " + textStatus );
+								alert( "Request failed: " );
 								utilidades.cierraCargador();
 							});
 						})
