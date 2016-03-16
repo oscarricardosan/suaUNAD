@@ -404,6 +404,13 @@
 					}
 					FORM.clickkMenuAct = 0;
 				});
+				$('main').scroll(function(){
+					if(FORM.clickkMenuAct != 1){
+						$('.menuActOptions').css('display','none');
+						desactivarActividades();
+					}
+					FORM.clickkMenuAct = 0;
+				});
 				$('body').mouseup(function(){
 					if(FORM.clickkMenuAct != 1){
 						$('.menuActOptions').css('display','none');
