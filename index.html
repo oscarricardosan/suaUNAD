@@ -959,8 +959,18 @@
 				$("body").on("click",".mdl-layout__tab", function() {
 					$('.mdl-layout__tab').removeClass('is-active');
 					$(this).addClass('is-active');
-					$('section').hide(0);
-					$('section'+$(this).attr('href')).show(0);
+					$('section').css({
+						'display': 'none',
+						'height': '0',
+						'width': '0',
+						'overflow': 'hidden'
+					});
+					$('section'+$(this).attr('href')).css({
+						'display': 'block',
+						'height': 'auto',
+						'width': 'auto',
+						'overflow': 'auto'
+					});;
 
 				})
 				$('a.enviarRecibir, a.recargar, a.configurar, a.borrarBD, a.ayuda').click(function(event){
