@@ -738,8 +738,8 @@
 						if(nSegs<0)msg_='Cerro hace: ';
 						else msg_='Cierra en: ';
 						msg+=msg_+' '+moment(now).preciseDiff(act.fecFinISO+" 23:59:59");
-						$('.contenedoresActividades .actividad[i="'+index+'"] .tiempoCierre').html(msg);
-						$('.contenedoresActividades .actividad[i="'+index+'"] .tiempoCierre').attr('cierre',cierre);
+						$('.contenedoresActividades section.is-active .actividad[i="'+index+'"] .tiempoCierre').html(msg);
+						$('.contenedoresActividades section.is-active .actividad[i="'+index+'"] .tiempoCierre').attr('cierre',cierre);
 					});
 				}
 				function validaDataAdicional(Data,idUsu,idAct){
@@ -957,7 +957,8 @@
 					$('#myInput').focus();
 				});
 				$("body").on("click",".mdl-layout__tab", function() {
-					$('.mdl-layout__tab').removeClass('is-active');
+					$('.mdl-layout__tab.is-active').removeClass('is-active');
+					$('section').removeClass('is-active');
 					$(this).addClass('is-active');
 					$('section').css({
 						'display': 'none',
@@ -965,6 +966,7 @@
 						'width': '0',
 						'overflow': 'hidden'
 					});
+					$('section'+$(this).attr('href')).addClass('is-active');
 					$('section'+$(this).attr('href')).css({
 						'display': 'block',
 						'height': 'auto',
