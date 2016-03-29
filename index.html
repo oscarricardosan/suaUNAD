@@ -30,15 +30,18 @@
 				background: white;
 				border: 1px solid #ccc;
 				bottom: 0;
+				box-shadow: 8px 8px 8px 9px black;
 				display: none;
 				position: absolute;
 				right: 0;
+				text-align: center;
 				z-index: 99;
-				width: 50%;
+				width: 100%;
 			}
 			.menuActOptions ul, .menuActOptions li{
 				opacity: 1!important;
 				position: relative!important;
+				text-align: center;
 				z-index: 9999!important;
 			}
 			.contenedoresActividades .actividad{
@@ -604,11 +607,13 @@
 					$(this).closest('.actividad').attr('activa', '1');
 					$('.menuActOptions').css('display','inline');
 					$('.menuActOptions .titleActSelect').html('');
+					var elementActPadre = $(".actividad[activa='1']");
+					FORM.idActActual = $(elementActPadre).attr('id');
 				});
 				$("body").on("click",".menuActOptions .opciones .opcion[accion='1']", function() {
 					var elementAct = this;
 					var elementActPadre = $(".actividad[activa='1']");
-					var idAct = $(elementActPadre).attr('id');
+					var idAct = FORM.idActActual;
 					$('.menuActOptions').css('display','none');
 					db.get('dataPersonal').then(function(doc) {
 						if(validaDataPersonal(doc)==false)return false;
@@ -639,8 +644,7 @@
 				$("body").on("click",".menuActOptions .opciones .opcion[accion='2']", function() {
 					var elementAct = this;
 					var elementActPadre = $(".actividad[activa='1']");
-					var idAct = $(elementActPadre).attr('id');
-					FORM.idActActual = idAct;
+					var idAct = FORM.idActActual;
 					$('.menuActOptions').css('display','none');
 					db.get('dataPersonal').then(function(doc) {
 						if(validaDataPersonal(doc)==false)return false;
@@ -680,7 +684,7 @@
 					$('.menuActOptions').css('display','none');
 					var elementAct = this;
 					var elementActPadre = $(".actividad[activa='1']");
-					var idAct = $(elementActPadre).attr('id');
+					var idAct = FORM.idActActual;
 					FORM.idActActual = idAct;
 					var notaTotal = elementActPadre.find('.notaTotal').text();
 					var notaActual = elementActPadre.find('.nuevaNota').attr('val');
@@ -694,7 +698,7 @@
 					$('.menuActOptions').css('display','none');
 					var elementAct = this;
 					var elementActPadre = $(".actividad[activa='1']");
-					var idAct = $(elementActPadre).attr('id');
+					var idAct = FORM.idActActual;
 					db.get('dataPersonal').then(function(doc) {
 						if(validaDataPersonal(doc)==false)return false;
 						doc=validaDataPersonal(doc);
@@ -865,7 +869,6 @@
 							ajustarCronometros();
 							iniciarContadorTime();
 							filtroStatusAct();
-							AsignaToContenedorDeActs(FORM.dataPrin.cursos);
 						}).then(function(response) {})
 						.catch(function (err) {alert(err);});
 					}).then(function(response) {})
@@ -886,17 +889,13 @@
 					);
 					$.each(titles, function( index, title ) {
 						var i = index +2;
-						$('.titulosCursos').append(
-							'<a href="#scroll-tab-'+i+'" class="mdl-layout__tab" idUnad="'+title.unad40id+'">' +
-								title.unad40nombre+'('+title.unad40id+')'+
-							'</a>'
-						);
-						$('.contenedoresActividades').append(
-							'<section class="mdl-layout__tab-panel" id="scroll-tab-'+i+'" idUnad="'+title.unad40id+'">'+
-							'<div class="page-content">'+
-							'</div>'+
-							'</section>'
-						);
+						if(_.where(FORM.dataPrin.actividades, {ofer18curso: title.unad40id}).length>0){
+							$('.titulosCursos').append(
+								'<a href="#scroll-tab-'+i+'" class="mdl-layout__tab" idUnad="'+title.unad40id+'">' +
+									title.unad40nombre+'('+title.unad40id+')'+
+								'</a>'
+							);
+						}
 					});
 				}
 				function estructuraDocumentos(){
@@ -919,9 +918,10 @@
 							var titAct = $('.mdl-layout__tab.is-active').attr('idunad');
 							FORM.dataPrin.cursos=doc.cuerpo.actividades[3];
 							FORM.dataPrin.actividades=doc.cuerpo.actividades[2];
+
 							cargarTitleTabs(FORM.dataPrin.cursos);
 							cargarActividadesOrderFecha();
-							console.log(titAct);
+
 							if(titAct!='' && titAct!=null && titAct!=undefined){
 								$('.mdl-layout__tab').removeClass('is-active');
 								$('.mdl-layout__tab[idunad="'+titAct+'"]').click();
@@ -958,49 +958,29 @@
 				});
 				$("body").on("click",".mdl-layout__tab", function() {
 					$('.mdl-layout__tab.is-active').removeClass('is-active');
-					$('section').removeClass('is-active');
 					$(this).addClass('is-active');
-					$('section').css({
-						'display': 'none',
-						'height': '0',
-						'width': '0',
-						'overflow': 'hidden'
-					});
-					$('section'+$(this).attr('href')).addClass('is-active');
-					$('section'+$(this).attr('href')).css({
-						'display': 'block',
-						'height': 'auto',
-						'width': 'auto',
-						'overflow': 'auto'
-					});;
-
+					if($(this).attr('idunad')==undefined) $('.contenedoresActividades .actividad').css('display','');
+					else{
+						$('.contenedoresActividades .actividad').css('display','none');
+						$('.contenedoresActividades .actividad[idunad="'+$(this).attr('idunad')+'"]').css('display','');
+					}
+					filtroStatusAct();
 				})
 				$('a.enviarRecibir, a.recargar, a.configurar, a.borrarBD, a.ayuda').click(function(event){
 					event.preventDefault();
 				});
 				function filtroStatusAct(){
-					$('.contenedoresActividades .actividad').css('display','none');
+					var idCurso = $(".mdl-layout__tab.is-active").attr('idunad');
+					var selector = '.contenedoresActividades .actividad';
+					if(idCurso!=undefined)selector = '.contenedoresActividades .actividad[idunad="'+idCurso+'"]';
+					$(selector).css('display','none');
 					if($('#act_switch_cerradas').prop('checked'))
-						$('.contenedoresActividades .actividad .tiempoCierre[cierre="0"]').parent().css('display','');
+						$(selector+' .tiempoCierre[cierre="0"]').parent().css('display','');
 					if($('#act_switch_abiertas').prop('checked')){
-						$('.contenedoresActividades .actividad .tiempoCierre[cierre="1"]').parent().css('display','');
-						$('.contenedoresActividades .actividad .tiempoCierre[cierre="2"]').parent().css('display','');
-						$('.contenedoresActividades .actividad .tiempoCierre[cierre="3"]').parent().css('display','');
+						$(selector+' .tiempoCierre[cierre="1"]').parent().css('display','');
+						$(selector+' .tiempoCierre[cierre="2"]').parent().css('display','');
+						$(selector+' .tiempoCierre[cierre="3"]').parent().css('display','');
 					}
-				}
-				function AsignaToContenedorDeActs(cursos){
-					$.each(cursos, function( index, curso) {
-						var actividades = '';
-						if($('.actividad[idUnad="'+curso.unad40id+'"]').length==0){
-							$('.mdl-layout__tab[idUnad="'+curso.unad40id+'"]').css('display','none');
-							$('section[idUnad="'+curso.unad40id+'"]').css('display','none');
-						}
-						$('.actividad[idUnad="'+curso.unad40id+'"]').each(function(){
-							html = $(this).clone().wrapAll("<div/>").parent().html();
-							actividades+=html;
-						});
-						$('section[idUnad="'+curso.unad40id+'"]').html(actividades);
-					});
 				}
 				function desactivarActividades(){
 					$('.actividad').attr('activa', '0');
